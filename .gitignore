@@ -1,0 +1,58 @@
+# =========================
+# Android / IntelliJ
+# =========================
+
+**/.idea/
+**/.kotlin/
+
+# Android build
+**/build/
+**/captures/
+
+# Local configuration
+local.properties
+
+# Gradle
+.gradle/
+
+# Generated files
+*.apk
+*.aab
+
+# Kotlin
+*.class
+
+# OS
+.DS_Store
+Thumbs.db
+
+# =========================
+# Python
+# =========================
+
+**/__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+.env.*
+
+# SQLite database
+*.db
+*.sqlite
+*.sqlite3
+
+# Python cache
+.pytest_cache/
+.mypy_cache/
+
+# =========================
+# IDE
+# =========================
+
+.vscode/
