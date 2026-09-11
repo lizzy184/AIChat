@@ -8,13 +8,15 @@ import com.example.aichatapp.model.ChatResponse
 import com.example.aichatapp.model.HistoryMessage
 import com.example.aichatapp.model.LoginRequest
 import com.example.aichatapp.model.LoginResponse
+import com.example.aichatapp.model.RefreshRequest
+import com.example.aichatapp.model.RefreshResponse
 import com.example.aichatapp.model.RegisterRequest
 import com.example.aichatapp.model.RegisterResponse
 
 import retrofit2.Response
 
 import retrofit2.http.DELETE
-import retrofit2.http.Query
+
 
 interface ChatApi {
 
@@ -24,8 +26,7 @@ interface ChatApi {
     ):ChatResponse
 
     @GET("history")
-    suspend fun getHistory( @Query("user_id")
-                                userId:Int):
+    suspend fun getHistory( ):
 
             List<HistoryMessage>
 
@@ -45,16 +46,13 @@ interface ChatApi {
 suspend fun login(
     @Body request: LoginRequest
 
-
 ): LoginResponse
 
+}
+interface RefreshApi {
 
-
-
-
-
-
-
-
-
+    @POST("refresh")
+    suspend fun refresh(
+        @Body request: RefreshRequest
+    ): RefreshResponse
 }

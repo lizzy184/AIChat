@@ -1,4 +1,6 @@
+
 package com.example.aichatapp.viewmodel
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
@@ -9,11 +11,9 @@ import com.example.aichatapp.repository.ChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-
 import kotlinx.coroutines.launch
 
 import javax.inject.Inject
-
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
@@ -22,56 +22,56 @@ class RegisterViewModel @Inject constructor(
 
     private val userPreferences: UserPreferences
 
-):ViewModel(){
-private val _registerSuccess= MutableStateFlow(false)
+) : ViewModel() {
 
-val registerSuccess=_registerSuccess.asStateFlow()
+    private val _registerSuccess = MutableStateFlow(false)
+
+    val registerSuccess = _registerSuccess.asStateFlow()
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+
+    val errorMessage = _errorMessage.asStateFlow()
+
     fun register(
-        username:String,
+        username: String,
         password: String
-
-    ){
+    ) {
 
         viewModelScope.launch {
 
+            // 每次重新注册前，清除上一次的错误
+            _errorMessage.value = null
+            _registerSuccess.value = false
 
-            when(
-                val result =
-                    repository.register(username, password  )
-            ){
+            when (
+                val result = repository.register(
+                    username,
+                    password
+                )
+            ) {
 
+                is NetworkResult.Success -> {
 
-                is NetworkResult.Success->{
+                    _registerSuccess.value = true
 
-
-                    userPreferences.saveUserId(
-                        result.data.user_id
-                    )
-_registerSuccess.value=true
                     userPreferences.saveHasRegistered()
                 }
 
+                is NetworkResult.Error -> {
 
-                is NetworkResult.Error->{
-
-
+                    _errorMessage.value = result.message
                 }
 
+                is NetworkResult.Loading -> {
 
-                is NetworkResult.Loading->{
-
-
+                    // 暂时不处理 Loading
                 }
-
-
             }
-
-
         }
-
-
     }
 
-
-
+    fun clearError() {
+        _errorMessage.value = null
+    }
 }
+

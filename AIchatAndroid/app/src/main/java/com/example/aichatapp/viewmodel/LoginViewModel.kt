@@ -22,18 +22,29 @@ private val repository: ChatRepository,
 
     private val _loginSuccess = MutableStateFlow(false)
     val loginSuccess=_loginSuccess.asStateFlow()
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage = _errorMessage.asStateFlow()
+
+
     fun login(username: String,password: String){
 
-
-
-
         viewModelScope.launch {
+
+
+
+            _errorMessage.value = null
+            _loginSuccess.value = false
+
             when(val result=repository.login(username,password)){
                 is NetworkResult.Success->{
-                    userPreferences.saveUserId(result.data.user_id)
-_loginSuccess.value=true
+                    userPreferences.saveTokens(
+                        accessToken = result.data.access_token,
+                        refreshToken = result.data.refresh_token
+                    )
+
+                    _loginSuccess.value = true
                 }
-                is NetworkResult.Error->{}
+                is NetworkResult.Error->{_errorMessage.value = result.message}
 
                 is NetworkResult.Loading->{}
 
@@ -59,7 +70,9 @@ _loginSuccess.value=true
 
 
 
-
+    fun clearError() {
+        _errorMessage.value = null
+    }
 
 
 }

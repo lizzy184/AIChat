@@ -79,7 +79,7 @@ fun AppNavigation(
         composable("start"){
 
 
-            StartScreen()
+            StartScreen(navController)
 
 
         }

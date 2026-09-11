@@ -1,3 +1,4 @@
+
 package com.example.aichatapp.view.login
 
 import androidx.compose.foundation.layout.Column
@@ -11,101 +12,78 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.aichatapp.viewmodel.LoginViewModel
-import androidx.compose.runtime.setValue
+
 @Composable
 fun LoginScreen(
     navController: NavController,
-    viewModel: LoginViewModel= hiltViewModel()
-){
+    viewModel: LoginViewModel = hiltViewModel()
+) {
     val loginSuccess by viewModel.loginSuccess.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
     var username by remember {
         mutableStateOf("")
     }
+
     var password by remember {
         mutableStateOf("")
     }
+
     LaunchedEffect(loginSuccess) {
-        if (loginSuccess){
-navController.navigate("chat"){
-    popUpTo("login"){
-        inclusive=false
-    }
-}
-
-
+        if (loginSuccess) {
+            navController.navigate("chat") {
+                popUpTo("login") {
+                    inclusive = true
+                }
+            }
         }
-
-
-
     }
 
-    Column{
+    Column {
+
         TextField(
-
-            value=username,
-
-            onValueChange={
-                username=it
-            }
-
-        )
-        OutlinedTextField(value = password,
+            value = username,
             onValueChange = {
-                password=it
-
-            }, label = {
-                Text(text = "密码")
+                username = it
+                viewModel.clearError()
+            },
+            label = {
+                Text("用户名")
             }
+        )
 
+        OutlinedTextField(
+            value = password,
+            onValueChange = {
+                password = it
+                viewModel.clearError()
+            },
+            label = {
+                Text("密码")
+            },
+            visualTransformation = PasswordVisualTransformation()
+        )
 
-
+        // 登录失败时显示错误信息
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage!!
             )
-
-
-
-
+        }
 
         Button(
-            onClick={
+            onClick = {
                 println("点击登录按钮")
-                viewModel.login(username,password)
-
+                viewModel.login(username, password)
             }
-        ){
-
+        ) {
             Text("登录")
-
         }
-
-
-
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
+

@@ -6,6 +6,8 @@ from services.chat import chat_ai
 
 from database.database import get_db
 from database.models import Message
+from database.models import User
+from utils.auth import get_current_user
 router = APIRouter()
 
 
@@ -21,7 +23,10 @@ router = APIRouter()
         }
     }
 )
-async def chat(request: ChatRequest,db: Session = Depends(get_db)):
+async def chat(request: ChatRequest,
+               db: Session = Depends(get_db)
+               , current_user: User = Depends(get_current_user)
+               ):
 
     # =========================
     # 1. 参数校验
@@ -60,7 +65,7 @@ async def chat(request: ChatRequest,db: Session = Depends(get_db)):
         )
     
     user_message = Message(
-    user_id=request.user_id,
+    user_id=current_user.id,
     role="user",
     content=request.message
 )
@@ -73,7 +78,7 @@ async def chat(request: ChatRequest,db: Session = Depends(get_db)):
 # 保存AI消息
 
     ai_message = Message(
-    user_id=request.user_id,
+    user_id=current_user.id,
     role="assistant",
     content=result
 )

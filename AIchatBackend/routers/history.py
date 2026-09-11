@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 
 from database.database import get_db
 from database.models import Message
-
+from database.models import User
+from utils.auth import get_current_user
 
 router = APIRouter()
 
@@ -13,7 +14,7 @@ router = APIRouter()
 
 @router.get("/history")
 def get_history(
-      user_id:int,
+      current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
 
@@ -23,7 +24,7 @@ def get_history(
         db.query(Message)
 
        .filter(
-            Message.user_id==user_id
+            Message.user_id==current_user.id
         )
     
         .all()
@@ -41,20 +42,17 @@ def get_history(
 
 @router.delete("/history")
 def clear_history(
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-
-
-    db.query(Message).delete()
-
+    db.query(Message).filter(
+        Message.user_id == current_user.id
+    ).delete(
+        synchronize_session=False
+    )
 
     db.commit()
 
-
-
     return {
-
-        "message":
-        "聊天记录已清空"
-
+        "message": "聊天记录已清空"
     }

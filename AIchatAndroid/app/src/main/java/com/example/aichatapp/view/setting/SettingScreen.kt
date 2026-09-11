@@ -55,9 +55,7 @@ val userPreferences=remember {
 
     }
 
-    val userId by
-    userPreferences.userId
-        .collectAsState(null)
+
     val viewModel: ChatViewModel = hiltViewModel()
 
 
@@ -214,7 +212,7 @@ SettingItem(
     title = "退出登录",
     onClick = {
         scope.launch {
-            userPreferences.clearUserId()
+            userPreferences.clearTokens()
             navController.navigate(
                 "login"
             ){

@@ -18,8 +18,11 @@ import com.example.aichatapp.navigation.BottomNavigationBar
 import com.example.aichatapp.ui.theme.AIchatAPPTheme
 
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.compose.runtime.LaunchedEffect
 
+import com.example.aichatapp.data.UserPreferences
 
+import kotlinx.coroutines.flow.drop
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -43,14 +46,28 @@ class MainActivity : ComponentActivity() {
                     rememberNavController()
                 val navBackStackEntry by
                 navController.currentBackStackEntryAsState()
-
+                val userPreferences = UserPreferences(
+                    applicationContext
+                )
 
                 val currentRoute =
                     navBackStackEntry?.destination?.route
 
+                LaunchedEffect(Unit) {
 
+                    userPreferences.accessToken
+                        .drop(1)
+                        .collect { token ->
 
+                            if (token == null) {
 
+                                navController.navigate("login") {
+                                    popUpTo(0)
+                                    launchSingleTop = true
+                                }
+                            }
+                        }
+                }
                 Scaffold(
 
                     modifier = Modifier.fillMaxSize(),

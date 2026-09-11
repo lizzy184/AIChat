@@ -102,71 +102,36 @@ class ChatViewModel @Inject constructor(
      *
      */
 
-    private fun loadHistory(){
-
+    private fun loadHistory() {
 
         viewModelScope.launch {
-            userPreferences.userId.collect{
 
+            val result =
+                repository.getHistory()
 
-                    userId->
+            when (result) {
 
+                is NetworkResult.Success<List<Message>> -> {
 
-                if(userId!=null) {
-
-                    val result =
-                        repository.getHistory(userId = userId)
-
-
-
-                    when (result) {
-
-
-                        is NetworkResult.Success<List<Message>> -> {
-
-
-                            _uiState.value =
-                                _uiState.value.copy(
-
-                                    messages =
-                                        result.data
-
-                                )
-
-
-                        }
-
-
-                        is NetworkResult.Error -> {
-
-
-                            _uiState.value =
-                                _uiState.value.copy(
-
-                                    errorMessage =
-                                        result.message
-
-                                )
-
-
-                        }
-
-
-                        is NetworkResult.Loading -> {
-
-
-                        }
-
-
-                    }
+                    _uiState.value =
+                        _uiState.value.copy(
+                            messages = result.data
+                        )
                 }
+
+                is NetworkResult.Error -> {
+
+                    _uiState.value =
+                        _uiState.value.copy(
+                            errorMessage = result.message
+                        )
                 }
+
+                is NetworkResult.Loading -> {
+                }
+            }
         }
-
-
     }
-
-
 
 
 

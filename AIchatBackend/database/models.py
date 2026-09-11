@@ -4,7 +4,7 @@ from sqlalchemy import String
 from sqlalchemy import DateTime
 
 from sqlalchemy.sql import func
-
+from sqlalchemy import ForeignKey
 from database.database import Base
 from datetime import datetime
 
@@ -23,8 +23,9 @@ class Message(Base):
 
     user_id = Column(
         Integer,
-        nullable=False,
-        default=1
+        ForeignKey("users.id"),
+        nullable=False
+      
     )
 
 

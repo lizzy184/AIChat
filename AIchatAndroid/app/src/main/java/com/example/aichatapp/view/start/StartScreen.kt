@@ -18,13 +18,13 @@ import com.example.aichatapp.view.register.RegisterScreen
 
 
 @Composable
-fun StartScreen(){
+fun StartScreen(navController: NavController){
 
 
     // 获取Android上下文
     val context = LocalContext.current
 
-val navController= NavController(context)
+
 
     // 创建UserPreferences
     val userPreferences =
@@ -36,54 +36,26 @@ val navController= NavController(context)
 
 
 
-    // 监听保存的userid
 
-    val userId by
-    userPreferences.userId
-        .collectAsState(
-            initial = null
-        )
 
+    val token by
+    userPreferences.accessToken
+        .collectAsState(initial = null)
 val hasRegistered by userPreferences.hasRegistered.collectAsState(initial = false)
 
+    when {
 
-    when{
-
-
-        //已经登录
-
-        userId != null -> {
-
-
+        token != null -> {
             ChatScreen()
-
         }
-
-
-
-        //注册过，但是退出了
 
         hasRegistered -> {
-
-
             LoginScreen(navController)
-
-
         }
-
-
-
-        //第一次使用
 
         else -> {
-
-
             RegisterScreen(navController)
-
-
         }
-
-
     }
 
 

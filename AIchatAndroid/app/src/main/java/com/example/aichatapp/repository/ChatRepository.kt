@@ -11,16 +11,15 @@ import com.example.aichatapp.model.RegisterRequest
 import com.example.aichatapp.model.RegisterResponse
 import com.example.aichatapp.network.ChatApi
 import com.example.aichatapp.network.NetworkResult
+import java.net.UnknownHostException
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 
 import retrofit2.HttpException
 
 import java.io.IOException
 
 import javax.inject.Inject
-import kotlinx.coroutines.flow.first
+
 
 
 class ChatRepository @Inject constructor(
@@ -59,16 +58,13 @@ class ChatRepository @Inject constructor(
 
 
         return try {
-            val userId =
 
-                userPreferences.userId.first()
-                    ?: 0
 
 
             val response = api.chat(
 
                 ChatRequest(
-                    user_id = userId,
+
 
                     message = message
 
@@ -169,7 +165,7 @@ class ChatRepository @Inject constructor(
      *
      */
     suspend fun getHistory(
-        userId:Int
+
     ):
 
             NetworkResult<List<Message>> {
@@ -178,7 +174,7 @@ class ChatRepository @Inject constructor(
         return try {
 
 
-            val response = api.getHistory(userId )
+            val response = api.getHistory()
 
 
 
@@ -297,57 +293,96 @@ class ChatRepository @Inject constructor(
     }
 
     suspend fun register(
-        username:String,
+        username: String,
         password: String
-    ):NetworkResult<RegisterResponse>{
+    ): NetworkResult<RegisterResponse> {
 
+        return try {
 
-        return try{
-
-
-            val response =
-                api.register(
-                    RegisterRequest(password ,username)
+            val response = api.register(
+                RegisterRequest(
+                    username = username,
+                    password = password
                 )
-
-
-            NetworkResult.Success(
-                response
             )
 
+            NetworkResult.Success(response)
 
-        }catch(e:Exception){
+        } catch (e: HttpException) {
 
+            when (e.code()) {
+
+                409 -> NetworkResult.Error(
+                    "用户名已存在",
+                    409
+                )
+
+                else -> NetworkResult.Error(
+                    "注册失败，请稍后重试",
+                    e.code()
+                )
+            }
+
+        } catch (e: UnknownHostException) {
+
+            NetworkResult.Error(
+                "无法连接服务器，请检查网络"
+            )
+
+        } catch (e: IOException) {
+
+            NetworkResult.Error(
+                "网络连接失败，请稍后重试"
+            )
+
+        } catch (e: Exception) {
 
             NetworkResult.Error(
                 e.message ?: "注册失败"
             )
-
         }
-
-
     }
 
-    suspend fun login(
+   suspend fun login(
         username: String,
         password: String
-    ): NetworkResult<LoginResponse>{
-return try {
+    ): NetworkResult<LoginResponse> {
+        return try {
 
-    val response=
-    api.login(LoginRequest(username, password ))
+            val response = api.login(
+                LoginRequest(username, password)
+            )
 
-    NetworkResult.Success(response)
+            NetworkResult.Success(response)
 
-}catch (e: Exception){
-    NetworkResult.Error(
-        e.message?:"登录失败"
-    )
+        } catch (e: retrofit2.HttpException) {
 
+            when (e.code()) {
+                401 -> NetworkResult.Error(
+                    "用户名或密码错误",
+                    401
+                )
 
-}
+                else -> NetworkResult.Error(
+                    "登录失败，请稍后重试",
+                    e.code()
+                )
+            }
 
+        } catch (e: java.net.UnknownHostException) {
 
+            NetworkResult.Error("无法连接服务器，请检查网络")
+
+        } catch (e: java.io.IOException) {
+
+            NetworkResult.Error("网络连接失败，请稍后重试")
+
+        } catch (e: Exception) {
+
+            NetworkResult.Error(
+                e.message ?: "登录失败"
+            )
+        }
     }
 
 }
