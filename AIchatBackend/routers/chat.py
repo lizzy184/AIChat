@@ -8,9 +8,11 @@ from database.database import get_db
 from database.models import Message
 from database.models import User
 from utils.auth import get_current_user
+import logging
 router = APIRouter()
 
 
+logger = logging.getLogger(__name__)
 @router.post(
     "/chat",
     response_model=ChatResponse,
@@ -54,9 +56,7 @@ async def chat(request: ChatRequest,
     except Exception as e:
 
         # 后面Day8日志会替换这里
-        print(
-            f"AI调用失败: {e}"
-        )
+        logger.warning("AI服务调用失败: %s", e)
 
 
         raise HTTPException(
