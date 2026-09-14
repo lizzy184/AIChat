@@ -4,7 +4,7 @@ import jwt
 from config import settings
 
 
-print("SECURITY FILE:", __file__)
+
 pwd_context = CryptContext(
     schemes=["bcrypt"],
     deprecated="auto"

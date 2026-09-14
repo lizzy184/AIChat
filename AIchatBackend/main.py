@@ -8,20 +8,21 @@ from routers import user
 # 非常重要
 # 导入模型，让SQLAlchemy知道有哪些表
 from database.models import Message
+from utils.logger import logger
 
 
 
 # 创建数据库和表
-print("==========开始创建数据库==========")
+logger.info("==========开始创建数据库==========")
 
 
-print(Base.metadata.tables)
+
 
 
 Base.metadata.create_all(bind=engine)
 
 
-print("==========数据库创建完成==========")
+logger.info("==========数据库创建完成==========")
 
 
 

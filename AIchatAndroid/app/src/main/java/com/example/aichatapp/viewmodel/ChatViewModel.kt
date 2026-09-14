@@ -1,9 +1,11 @@
 package com.example.aichatapp.viewmodel
 
-
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.withTimeoutOrNull
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-
+import kotlinx.coroutines.delay
 import com.example.aichatapp.model.ChatUiState
 import com.example.aichatapp.model.Message
 import com.example.aichatapp.network.NetworkResult
@@ -61,7 +63,7 @@ class ChatViewModel @Inject constructor(
      */
 
     private var lastMessage:String? = null
-
+    private var lastUiUpdateTime = 0L
 
 
 
@@ -258,148 +260,89 @@ class ChatViewModel @Inject constructor(
      */
 
     private fun sendMessageInternet(
-
-        message:String
-
-    ){
-
-
+        message: String
+    ) {
         viewModelScope.launch {
 
+            _uiState.value =
+                _uiState.value.copy(
+                    isLoading = true
+                )
 
+            val aiMessage =
+                Message(
+                    text = "",
+                    isUser = false,
+                    time = ""
+                )
 
             _uiState.value =
                 _uiState.value.copy(
-
-                    isLoading = true
-
+                    messages =
+                        _uiState.value.messages + aiMessage
                 )
 
+            val chunkChannel =
+                Channel<String>(Channel.UNLIMITED)
 
+            val streamJob = launch {
 
+                try {
 
+                    repository.streamAiReply(
+                        message
+                    ) { chunk ->
 
+                        chunkChannel.send(chunk)
+                    }
 
-            val result =
-                repository.getAiReply(
+                } finally {
 
-                    message
-
-                )
-
-
-
-
-
-
-
-            when(result){
-
-
-
-                /**
-                 *
-                 * AI返回成功
-                 *
-                 */
-
-                is NetworkResult.Success<Message> -> {
-
-
-
-                    val aiMessage =
-                        result.data
-
-
-
-
-
-                    _uiState.value =
-                        _uiState.value.copy(
-
-                            messages =
-                                _uiState.value.messages
-                                        +
-                                        aiMessage
-
-                        )
-
-
+                    chunkChannel.close()
                 }
-
-
-
-
-
-                /**
-                 *
-                 * 网络或者服务器错误
-                 *
-                 */
-
-                is NetworkResult.Error -> {
-
-
-
-                    _uiState.value =
-                        _uiState.value.copy(
-
-                            errorMessage =
-                                result.message
-
-                        )
-
-
-                }
-
-
-
-
-
-                /**
-                 *
-                 * 加载状态
-                 *
-                 */
-
-                is NetworkResult.Loading -> {
-
-
-
-                }
-
-
-
             }
 
+            var fullText = ""
 
+            while (true) {
 
+                val chunk =
+                    chunkChannel
+                        .receiveCatching()
+                        .getOrNull()
+                        ?: break
 
+                fullText += chunk
 
+                val messages =
+                    _uiState.value.messages.toMutableList()
+
+                messages[messages.lastIndex] =
+                    aiMessage.copy(
+                        text = fullText
+                    )
+
+                _uiState.value =
+                    _uiState.value.copy(
+                        messages = messages
+                    )
+
+                Log.d(
+                    "VIEWMODEL_TEST",
+                    "UI更新：$fullText"
+                )
+
+                delay(30)
+            }
+
+            streamJob.join()
 
             _uiState.value =
                 _uiState.value.copy(
-
                     isLoading = false
-
                 )
-
-
-
         }
-
-
-
     }
-
-
-
-
-
-
-
-
-
     /**
      *
      * 重新发送

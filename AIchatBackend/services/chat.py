@@ -14,7 +14,7 @@ client = AsyncOpenAI(
 )
 
 
-async def chat_ai(message: str):
+async def chat_ai_stream(message: str):
 
     try:
 
@@ -29,16 +29,19 @@ async def chat_ai(message: str):
                 }
             ],
 
-            max_tokens=500
+            max_tokens=500,
+            stream=True
         )
-
-
-        return response.choices[0].message.content
+        async for chunk in response:
+            content = chunk.choices[0].delta.content
+            if content:
+                yield content
+        
 
 
     except Exception as e:
 
-        logger.error(
+        logger.exception(
             f"AI调用失败:{e}"
         )
 

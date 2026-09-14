@@ -2,6 +2,7 @@ package com.example.aichatapp.repository
 
 
 
+import android.util.Log
 import com.example.aichatapp.data.UserPreferences
 import com.example.aichatapp.model.Message
 import com.example.aichatapp.model.ChatRequest
@@ -11,21 +12,24 @@ import com.example.aichatapp.model.RegisterRequest
 import com.example.aichatapp.model.RegisterResponse
 import com.example.aichatapp.network.ChatApi
 import com.example.aichatapp.network.NetworkResult
+import okhttp3.OkHttpClient
 import java.net.UnknownHostException
-
-
 import retrofit2.HttpException
-
 import java.io.IOException
-
 import javax.inject.Inject
-
+import com.example.aichatapp.BuildConfig
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 class ChatRepository @Inject constructor(
 
     private val api: ChatApi,
-    private val userPreferences: UserPreferences
+    private val userPreferences: UserPreferences,
+    private val okHttpClient: OkHttpClient
 
 ) {
 
@@ -139,7 +143,83 @@ class ChatRepository @Inject constructor(
 
     }
 
+    suspend fun streamAiReply(
+        message: String,
+        onChunk: suspend (String) -> Unit
+    ): NetworkResult<Unit> {
 
+        return try {
+
+            withContext(Dispatchers.IO) {
+
+                val requestBody = """
+                {
+                    "message": "$message"
+                }
+            """.trimIndent()
+                    .toRequestBody(
+                        "application/json".toMediaType()
+                    )
+
+                val request = Request.Builder()
+                    .url(BuildConfig.BASE_URL + "chat")
+                    .post(requestBody)
+                    .build()
+
+                okHttpClient.newCall(request).execute().use { response ->
+
+                    if (!response.isSuccessful) {
+
+                        return@withContext NetworkResult.Error(
+                            message = "请求失败：${response.code}",
+                            code = response.code
+                        )
+                    }
+
+                    val source = response.body?.source()
+                        ?: return@withContext NetworkResult.Error(
+                            message = "服务器响应为空"
+                        )
+
+                    while (!source.exhausted()) {
+
+                        val line = source.readUtf8Line()
+                            ?: break
+                        Log.d(
+                            "SSE_TEST",
+                            "收到原始行: $line"
+                        )
+                        if (line.startsWith("data: ")) {
+
+                            val data = line.removePrefix("data: ")
+
+                            if (data == "[DONE]") {
+                                Log.d(
+                                    "SSE_TEST",
+                                    "收到[DONE]，准备结束SSE"
+                                )
+                                break
+                            }
+
+                            Log.d("SSE_TEST", "收到 chunk: $data")
+                            onChunk(data)
+                        }
+                    }
+                    Log.d(
+                        "SSE_TEST",
+                        "SSE读取循环结束，准备返回Success"
+                    )
+                    NetworkResult.Success(Unit)
+                }
+            }
+
+        } catch (e: Exception) {
+
+            NetworkResult.Error(
+                message = e.message ?: "网络请求失败"
+            )
+        }
+    }
 
 
 

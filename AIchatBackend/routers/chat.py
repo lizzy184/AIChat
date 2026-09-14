@@ -2,20 +2,21 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from model.schema import ChatRequest, ChatResponse
-from services.chat import chat_ai
+from services.chat import chat_ai_stream
 
 from database.database import get_db
 from database.models import Message
 from database.models import User
 from utils.auth import get_current_user
-import logging
+from utils.logger import logger
+from fastapi.responses import StreamingResponse
 router = APIRouter()
 
 
-logger = logging.getLogger(__name__)
+
 @router.post(
     "/chat",
-    response_model=ChatResponse,
+    
     responses={
         400: {
             "description": "请求参数错误"
@@ -25,75 +26,61 @@ logger = logging.getLogger(__name__)
         }
     }
 )
-async def chat(request: ChatRequest,
-               db: Session = Depends(get_db)
-               , current_user: User = Depends(get_current_user)
-               ):
+async def chat(
+    request: ChatRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
 
-    # =========================
-    # 1. 参数校验
-    # =========================
-    print(db)
     if not request.message.strip():
-
         raise HTTPException(
             status_code=400,
             detail="message不能为空"
         )
 
+    async def event_generator():
 
-    # =========================
-    # 2. 调用AI服务
-    # =========================
+        answer_parts = []
 
-    try:
+        try:
 
-        result = await chat_ai(
-            request.message
+            async for chunk in chat_ai_stream(request.message):
+
+                answer_parts.append(chunk)
+
+                yield f"data: {chunk}\n\n"
+
+        except Exception:
+
+            logger.exception("AI服务调用失败")
+
+            yield "event: error\ndata: AI服务暂时不可用\n\n"
+
+            return
+
+        result = "".join(answer_parts)
+
+        user_message = Message(
+            user_id=current_user.id,
+            role="user",
+            content=request.message
         )
 
+        db.add(user_message)
 
-    except Exception as e:
-
-        # 后面Day8日志会替换这里
-        logger.warning("AI服务调用失败: %s", e)
-
-
-        raise HTTPException(
-            status_code=500,
-            detail="AI服务暂时不可用"
+        ai_message = Message(
+            user_id=current_user.id,
+            role="assistant",
+            content=result
         )
-    
-    user_message = Message(
-    user_id=current_user.id,
-    role="user",
-    content=request.message
-)
 
+        db.add(ai_message)
 
-    db.add(user_message)
+        db.commit()
 
+        yield "event: done\ndata: [DONE]\n\n"
 
-
-# 保存AI消息
-
-    ai_message = Message(
-    user_id=current_user.id,
-    role="assistant",
-    content=result
-)
-
-
-    db.add(ai_message)
-
-
-
-    db.commit()
-
-    # =========================
-    # 3. 返回结果
-    # =========================
-
-    return ChatResponse(
-        reply=result
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream"
     )

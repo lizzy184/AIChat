@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-
+import jwt
 from database.database import get_db
 from database.models import User
 from utils.security import decode_access_token
@@ -18,7 +18,7 @@ def get_current_user(
 ):
     try:
         payload = decode_access_token(token)
-    except Exception:
+    except jwt.PyJWTError:
         raise HTTPException(
             status_code=401,
             detail="无效的认证信息"
