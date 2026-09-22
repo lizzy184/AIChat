@@ -11,89 +11,50 @@ import com.example.aichatapp.model.Message
 import com.example.aichatapp.view.components.MessageItem
 
 @Composable
-fun MessageList(messages: List<Message>,isLoading: Boolean,modifier: Modifier){
+fun MessageList(
+    messages: List<Message>,
+    isLoading: Boolean,
+    modifier: Modifier
+) {
     val listState = rememberLazyListState()
 
-
-
-
-    LaunchedEffect(messages.size,
+    LaunchedEffect(
+        messages.size,
+        messages.lastOrNull()?.text,
         isLoading
-
-    ){
-
+    ) {
         if (messages.isNotEmpty()) {
-            listState.animateScrollToItem(messages.size - 1)
-
-
+            listState.scrollToItem(
+                messages.size - 1
+            )
         }
-
     }
-
-
-
-
-
-
-
 
     LazyColumn(
-        state =listState ,
+        state = listState,
         modifier = modifier
+    ) {
 
-
-    ){
-if(messages.isEmpty()){
-
-
-     item {
-         EmptyState()
-     }
-}
-
-
-       else items(messages){ message ->
-
-            MessageItem(message)
-
-
-
-
-
-
-        }
-
-
-
-        //loading状态
-
-
-
+        if (messages.isEmpty()) {
 
             item {
-                AnimatedVisibility(visible = isLoading){
-                    LoadingMessage()
-
-                }
-
-
-
-
+                EmptyState()
             }
 
+        } else {
 
+            items(messages) { message ->
+                MessageItem(message)
+            }
+        }
 
+        item {
 
-
-
-
-
-
-
-
+            AnimatedVisibility(
+                visible = isLoading
+            ) {
+                LoadingMessage()
+            }
+        }
     }
-
-
-
-
 }

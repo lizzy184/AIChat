@@ -2,9 +2,10 @@ package com.example.aichatapp.network
 import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.GET
-
+import com.example.aichatapp.model.Conversation
 import com.example.aichatapp.model.ChatRequest
 import com.example.aichatapp.model.ChatResponse
+import com.example.aichatapp.model.DocumentUploadResponse
 import com.example.aichatapp.model.HistoryMessage
 import com.example.aichatapp.model.LoginRequest
 import com.example.aichatapp.model.LoginResponse
@@ -12,10 +13,13 @@ import com.example.aichatapp.model.RefreshRequest
 import com.example.aichatapp.model.RefreshResponse
 import com.example.aichatapp.model.RegisterRequest
 import com.example.aichatapp.model.RegisterResponse
-
+import okhttp3.MultipartBody
+import retrofit2.http.Multipart
+import retrofit2.http.Part
 import retrofit2.Response
 
 import retrofit2.http.DELETE
+import retrofit2.http.Path
 
 
 interface ChatApi {
@@ -48,6 +52,24 @@ suspend fun login(
 
 ): LoginResponse
 
+    @GET("conversations")
+    suspend fun getConversations(): List<Conversation>
+
+    @GET("conversations/{conversation_id}/messages")
+    suspend fun getConversationMessages(
+        @Path("conversation_id") conversationId: Int
+    ): List<HistoryMessage>
+
+    @DELETE("conversations/{conversation_id}")
+    suspend fun deleteConversation(
+        @Path("conversation_id") conversationId: Int
+    ): Response<Unit>
+
+    @Multipart
+    @POST("documents/upload")
+    suspend fun uploadDocument(
+        @Part file: MultipartBody.Part
+    ): DocumentUploadResponse
 }
 interface RefreshApi {
 

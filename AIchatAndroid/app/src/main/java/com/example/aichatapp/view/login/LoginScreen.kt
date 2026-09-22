@@ -16,6 +16,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.aichatapp.navigation.AppRoute
+
 import com.example.aichatapp.viewmodel.LoginViewModel
 
 @Composable
@@ -34,15 +36,29 @@ fun LoginScreen(
         mutableStateOf("")
     }
 
-    LaunchedEffect(loginSuccess) {
-        if (loginSuccess) {
-            navController.navigate("chat") {
-                popUpTo("login") {
-                    inclusive = true
+
+        LaunchedEffect(loginSuccess) {
+
+            if(loginSuccess){
+
+
+                navController.navigate(
+                    AppRoute.CONVERSATIONS
+                ){
+
+                    popUpTo(
+                        AppRoute.LOGIN
+                    ){
+
+                        inclusive=true
+
+                    }
+
                 }
+
             }
+
         }
-    }
 
     Column {
 

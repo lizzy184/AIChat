@@ -10,6 +10,7 @@ class Settings:
     SILICON_API_KEY = os.getenv(
         "SILICON_API_KEY"
     )
+    EMBEDDING_MODEL: str = "BAAI/bge-m3"
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
     JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
     JWT_EXPIRE_MINUTES = int(

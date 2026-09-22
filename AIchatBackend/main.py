@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from routers import chat
-
+from routers.conversation import router as conversation_router
 from database.database import engine
 from database.database import Base
 from routers import history
 from routers import user
+from routers import documents
 # 非常重要
 # 导入模型，让SQLAlchemy知道有哪些表
 from database.models import Message
@@ -27,6 +28,8 @@ logger.info("==========数据库创建完成==========")
 
 
 app = FastAPI()
+app.include_router(documents.router)
+app.include_router(conversation_router)
 app.include_router(
     chat.router
 )

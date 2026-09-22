@@ -26,7 +26,7 @@ val bottomNavItems = listOf(
 
     BottomNavItem(
 
-        route = AppRoute.CHAT,
+        route = AppRoute.CONVERSATIONS,
 
         title = "聊天",
 
@@ -94,7 +94,16 @@ fun BottomNavigationBar(
                 onClick = {
 
 
-                    navController.navigate(item.route)
+                    if(currentRoute != item.route){
+
+
+                        navController.navigate(item.route){
+
+                            launchSingleTop = true
+
+                        }
+
+                    }
 
 
                 },

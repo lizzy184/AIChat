@@ -1,8 +1,9 @@
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
-import jwt
-from config import settings
 
+import jwt
+
+from config import settings
 
 
 pwd_context = CryptContext(
@@ -11,30 +12,35 @@ pwd_context = CryptContext(
 )
 
 
-
-def hash_password(password:str):
-
+def hash_password(password: str):
     return pwd_context.hash(password)
 
 
-
 def verify_password(
-        plain_password,
-        hashed_password
+    plain_password,
+    hashed_password
 ):
-
     return pwd_context.verify(
         plain_password,
         hashed_password
     )
+
+
+# =========================================================
+# Access Token
+# =========================================================
+
 def create_access_token(data: dict):
     to_encode = data.copy()
 
-    expire = datetime.now(timezone.utc) + timedelta(
+    now = datetime.now(timezone.utc)
+
+    expire = now + timedelta(
         minutes=settings.JWT_EXPIRE_MINUTES
     )
 
     to_encode.update({
+        "iat": now,
         "exp": expire
     })
 
@@ -44,14 +50,22 @@ def create_access_token(data: dict):
         algorithm=settings.JWT_ALGORITHM
     )
 
+
+# =========================================================
+# Refresh Token
+# =========================================================
+
 def create_refresh_token(data: dict):
     to_encode = data.copy()
 
-    expire = datetime.now(timezone.utc) + timedelta(
+    now = datetime.now(timezone.utc)
+
+    expire = now + timedelta(
         days=settings.REFRESH_TOKEN_EXPIRE_DAYS
     )
 
     to_encode.update({
+        "iat": now,
         "exp": expire,
         "type": "refresh"
     })
@@ -63,15 +77,28 @@ def create_refresh_token(data: dict):
     )
 
 
-
-
+# =========================================================
+# Decode Access Token
+# =========================================================
 
 def decode_access_token(token: str):
-    return jwt.decode(
-        token,
-        settings.JWT_SECRET_KEY,
-        algorithms=[settings.JWT_ALGORITHM]
-    )
+    try:
+        return jwt.decode(
+            token,
+            settings.JWT_SECRET_KEY,
+            algorithms=[settings.JWT_ALGORITHM]
+        )
+
+    except jwt.ExpiredSignatureError:
+        return None
+
+    except jwt.PyJWTError:
+        return None
+
+
+# =========================================================
+# Decode Refresh Token
+# =========================================================
 
 def decode_refresh_token(token: str):
     try:
@@ -88,4 +115,3 @@ def decode_refresh_token(token: str):
 
     except jwt.PyJWTError:
         return None
-

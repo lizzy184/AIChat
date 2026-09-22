@@ -56,3 +56,22 @@ env/
 # =========================
 
 .vscode/
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Generated RAG data
+rag/
+
+# Local test files
+*.pdf
+
+# Archives
+*.zip
