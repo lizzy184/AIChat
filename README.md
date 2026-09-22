@@ -28,6 +28,8 @@ AIChat 是一个前后端分离的 AI 聊天项目。
 - SQLite
 - DeepSeek Streaming API
 - Docker 容器化
+- RAG / Embedding / Vector Retrieval
+- PDF 文档解析与知识库构建
 - Git / GitHub
 
 ---
@@ -109,6 +111,7 @@ AIChat 是一个 Android AI 聊天应用。
 - Repository chunk callback 分片回调
 - ViewModel StateFlow 实时状态更新
 - Compose UI 实时渲染
+- RAG 检索结果驱动的 AI 问答
 
 #### 聊天记录
 
@@ -291,12 +294,12 @@ project/
 | logger.py | 统一日志、异常日志记录 |
 | Uvicorn | ASGI 服务器 |
 | Docker | 后端容器化运行 |
+| RAG Pipeline | PDF 解析、Chunk、Embedding、向量检索 |
+| Vector Store | 保存 RAG 向量索引 |
 
-## 🤖 AI
+## 🤖 AI / RAG
 
-项目使用：
-DeepSeek Streaming API
-作为 AI 流式对话服务。
+项目使用 DeepSeek Streaming API 作为 AI 流式对话服务，同时加入 RAG（Retrieval-Augmented Generation）知识库流程，让 AI 可以基于已上传的 PDF 文档检索相关知识后回答问题。
 
 整体调用流程：
 
@@ -319,6 +322,90 @@ Repository分片回调→StateFlow→Compose实时渲染
    ↓
 流结束合并完整消息保存数据库
 ```
+
+
+
+# 📚 RAG 知识库
+
+项目已经完成 PDF → RAG → AI 问答的完整链路。
+
+用户可以在 Android 客户端选择 PDF 文件，通过 `POST /documents/upload` 上传到 FastAPI Backend。Backend 会进行 PDF 解析、Chunk 切分、Embedding 向量生成并建立向量索引；用户提问时再进行相关知识检索，并将检索结果加入 Prompt 后交给 DeepSeek 生成回答。
+
+## RAG Pipeline
+
+```text
+Android / MuMu
+    ↓
+选择 PDF
+    ↓
+POST /documents/upload
+    ↓
+PDF Loader
+    ↓
+Text Chunking
+    ↓
+Embedding
+    ↓
+vectors.npy
+    ↓
+rag_index.json
+    ↓
+Retriever.reload()
+    ↓
+用户发送问题
+    ↓
+Retrieval
+    ↓
+Prompt
+    ↓
+DeepSeek
+    ↓
+SSE Streaming
+    ↓
+Android 实时显示 AI 回复
+```
+
+## RAG 模块
+
+```text
+rag/
+├── loader.py
+├── splitter.py
+├── embedding.py
+├── vector_store.py
+├── retriever.py
+├── rag_service.py
+├── build_index.py
+├── test_loader.py
+└── test_retriever.py
+```
+
+- `loader.py`：读取 PDF 并提取文本
+- `splitter.py`：将文档切分成知识片段
+- `embedding.py`：生成 Embedding 向量
+- `vector_store.py`：保存和读取向量数据
+- `retriever.py`：根据用户问题检索相关 chunks
+- `rag_service.py`：组织 RAG 索引与检索流程
+- `build_index.py`：构建知识库索引
+
+RAG Query Pipeline 已实际测试通过，上传、索引、检索、Prompt 构建以及最终 AI 回答能够完整连通。
+
+## PDF 上传
+
+上传成功后 Backend 返回文件名、Content Type、文件大小、PDF 页数、Chunk 数量和处理状态。
+
+例如测试 `kotlin.pdf` 时，Backend 日志曾完成：
+
+```text
+开始为 kotlin.pdf 建立 RAG 索引...
+一共生成 20 个 chunks
+Embedding 完成，共 20 个向量
+索引保存完成
+Retriever重新加载完成：20 chunks，20 vectors
+POST /documents/upload → 200 OK
+```
+
+> RAG 生成的 `rag_index.json`、`vectors.npy`、本地测试 PDF 以及 Python 缓存文件不提交到 GitHub；RAG 源代码会提交。
 
 # 🔐 JWT 身份认证
 
@@ -929,7 +1016,33 @@ SSE Streaming Response 接口，用于发送聊天消息并获取 AI 流式回�
 **清空历史记录**
 `DELETE /history`
 用于清空当前登录用户的聊天历史。
-需要 Access Token。
+需要 Access Token
+
+## 会话
+
+**获取会话列表**
+`GET /conversations`
+
+**获取会话消息**
+`GET /conversations/{conversation_id}/messages`
+
+**删除会话**
+`DELETE /conversations/{conversation_id}`
+
+以上接口需要 Access Token。
+
+## 文档 / RAG
+
+**上传 PDF**
+`POST /documents/upload`
+
+使用 multipart/form-data 上传 PDF，并建立或更新 RAG 知识库索引。
+
+上传字段：
+
+```text
+file=<PDF 文件>
+```。
 
 ### API 认证关系
 
@@ -957,6 +1070,14 @@ SSE Streaming Response 接口，用于发送聊天消息并获取 AI 流式回�
 需要 Access Token
 
 DELETE /history
+    ↓
+需要 Access Token
+
+/conversations
+    ↓
+需要 Access Token
+
+/documents/upload
     ↓
 需要 Access Token
 ```
@@ -1156,9 +1277,11 @@ TokenAuthenticator
 - logger.py 日志系统、异常捕获
 - 用户与消息数据关联
 
-## AI
+## AI / RAG
 
 - DeepSeek Streaming API
+- PDF → Chunk → Embedding → Vector Retrieval
+- RAG Query Pipeline
 - AI 流式对话 API 调用
 - Android → FastAPI → DeepSeek 完整 SSE 数据流
 
@@ -1239,6 +1362,11 @@ POST /chat      → 200 OK
 ✅ 历史记录页面
 ✅ 清空聊天历史
 ✅ 设置页面
+✅ 多会话 / Conversation 管理
+✅ PDF 文件选择与上传
+✅ PDF → Chunk → Embedding → Vector Index
+✅ RAG Retriever
+✅ RAG Query Pipeline
 ✅ FastAPI 后端
 ✅ StreamingResponse SSE 输出
 ✅ logger.py 后端日志 & 异常日志
@@ -1265,7 +1393,9 @@ POST /chat      → 200 OK
 
 ## AI 功能
 
-- 多轮上下文优化
+- RAG 检索策略进一步优化
+- Chunk 策略与 Embedding 模型优化
+- 知识库管理进一步完善
 - Markdown AI 回复渲染
 - 代码高亮
 - 多模型支持
@@ -1393,6 +1523,8 @@ Android 客户端的详细说明请查看：
 - Access Token
 - Refresh Token
 - DeepSeek Streaming API
+- RAG / PDF 文档处理
+- Conversation / Memory
 - Docker
 - 环境变量
 - 后端运行方式
