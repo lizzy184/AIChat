@@ -3,15 +3,19 @@ import httpx
 
 from openai import AsyncOpenAI
 
+from agent.agent import Agent
+
 from config import settings
 from prompt.system_prompt import SYSTEM_PROMPT
-from rag.rag_service import rag_chat
 
 
 logger = logging.getLogger(__name__)
 
 
-# DeepSeek / SiliconFlow client
+# ==========================
+# LLM Client
+# ==========================
+
 client = AsyncOpenAI(
 
     api_key=settings.SILICON_API_KEY,
@@ -19,8 +23,8 @@ client = AsyncOpenAI(
     base_url="https://api.siliconflow.cn/v1",
 
     timeout=httpx.Timeout(
-        connect=30.0,   # 建立连接时间
-        read=300.0,     # 等待模型返回时间
+        connect=30.0,
+        read=300.0,
         write=30.0,
         pool=30.0
     ),
@@ -28,6 +32,25 @@ client = AsyncOpenAI(
     max_retries=3
 )
 
+
+
+# ==========================
+# Agent 初始化
+# ==========================
+
+agent = Agent(
+
+    llm_client=client,
+
+    model="deepseek-ai/DeepSeek-V3"
+
+)
+
+
+
+# ==========================
+# Agent Chat
+# ==========================
 
 async def chat_ai_stream(
         message: str,
@@ -39,22 +62,15 @@ async def chat_ai_stream(
         logger.info(
             f"用户问题: {message}"
         )
-
-
-        # ==========================
-        # RAG 检索
-        # ==========================
-
-        rag_result = await rag_chat(message)
-
-
-        rag_prompt = rag_result["prompt"]
-
-
         logger.info(
-            f"RAG prompt长度: {len(rag_prompt)}"
-        )
+    f"Chat接收到History: "
+    f"history_count={len(history)}"
+)
 
+
+        # ==========================
+        # 构造 Agent messages
+        # ==========================
 
         messages = [
 
@@ -63,75 +79,48 @@ async def chat_ai_stream(
                 "content": SYSTEM_PROMPT
             },
 
+
             *history,
+
 
             {
                 "role": "user",
-                "content": rag_prompt
+                "content": message
             }
 
         ]
 
 
         logger.info(
-            f"发送给模型消息数量: {len(messages)}"
-        )
+    f"Agent Context构建完成: "
+    f"history_count={len(history)}, "
+    f"context_message_count={len(messages)}"
+)
 
 
         # ==========================
-        # DeepSeek Streaming
+        # 调用 Agent
         # ==========================
 
-        response = await client.chat.completions.create(
+        answer = await agent.run(
 
-            model="deepseek-ai/DeepSeek-V3",
-
-            messages=messages,
-
-
-            max_tokens=2000,
-
-            temperature=0.7,
-
-
-            stream=True,
-
-            stream_options={
-                "include_usage": True
-            }
+            messages=messages
 
         )
 
 
         logger.info(
-            "DeepSeek连接成功，开始输出"
+
+            f"Agent回答长度: {len(answer)}"
+
         )
 
 
-        async for chunk in response:
+        # ==========================
+        # SSE 输出
+        # ==========================
 
-
-            # 最后一个usage chunk
-            if not chunk.choices:
-                continue
-
-
-            delta = chunk.choices[0].delta
-
-
-            content = delta.content
-
-
-            if not content:
-                continue
-
-
-            logger.debug(
-                f"token: {content}"
-            )
-
-
-            yield content
+        yield answer
 
 
 
@@ -139,8 +128,11 @@ async def chat_ai_stream(
 
 
         logger.error(
+
             "DeepSeek响应超时"
+
         )
+
 
         yield "\n[模型响应超时，请稍后重试]"
 
@@ -150,7 +142,10 @@ async def chat_ai_stream(
 
 
         logger.exception(
-            f"DeepSeek stream error: {e}"
+
+            f"Agent chat error: {e}"
+
         )
+
 
         raise

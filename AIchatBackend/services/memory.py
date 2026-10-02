@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-
+import logging
 from database.models import Message
-
+logger = logging.getLogger(__name__)
 
 
 class MemoryService:
@@ -21,6 +21,11 @@ class MemoryService:
         conversation_id:int,
         limit:int=20
     ):
+        logger.info(
+    f"Memory开始获取历史消息: "
+    f"conversation_id={conversation_id}, "
+    f"limit={limit}"
+)
 
 
         messages=(
@@ -51,6 +56,11 @@ class MemoryService:
             .all()
 
         )
+        logger.info(
+    f"Memory获取历史消息完成: "
+    f"conversation_id={conversation_id}, "
+    f"history_count={len(messages)}"
+)
 
 
         messages.reverse()
