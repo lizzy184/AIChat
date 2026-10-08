@@ -1,7 +1,25 @@
-.venv
+# Environment
+.env
 
-__pycache__
-
+# Git
 .git
-chat.db
+
+# Python
+__pycache__/
 *.pyc
+*.pyo
+
+# Virtual environment
+.venv/
+venv/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+
+# Tests
+.pytest_cache/

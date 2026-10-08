@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
-
+from services.redis_service import redis_service
 from database.database import get_db
 from database.models import User
 
@@ -40,7 +40,16 @@ def get_current_user(
     # =====================================================
     # 2. 解码 Access Token
     # =====================================================
-
+    if redis_service.is_blacklisted(token):
+        raise HTTPException(
+        status_code=401,
+        detail="Access Token 已注销",
+        headers={
+            "WWW-Authenticate": "Bearer"
+        }
+    )
+    
+    
     payload = decode_access_token(token)
 
     if payload is None:

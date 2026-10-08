@@ -1,213 +1,162 @@
-README.md
-Part 2/4
-🛠️ 技术栈
-Android
-技术	用途
-Kotlin	Android 应用主要开发语言
-Jetpack Compose	Android UI 开发
-Material 3	UI 组件与设计
-MVVM	Android 应用架构
-ViewModel	管理 UI 状态
-Kotlin Coroutines	异步任务处理
-StateFlow	实时状态更新
-Retrofit	HTTP 网络请求
-OkHttp	HTTP 客户端、Interceptor、Authenticator、SSE 流读取
-Room	本地数据库
-Navigation	页面导航
-DataStore	Token 与用户状态保存
-Hilt / Dependency Injection	依赖注入
-Repository Pattern	数据层抽象
-Backend
-技术	用途
-Python	后端开发语言
-FastAPI	Web API 框架
-StreamingResponse	SSE 流式输出
-Pydantic	请求与响应数据校验
-SQLAlchemy	ORM 数据库操作
-SQLite	项目开发阶段数据库
-Bcrypt	用户密码 Hash
-PyJWT	JWT Token 生成与验证
-OAuth2 Bearer Token	API 身份认证
-logger.py	统一日志管理
-Uvicorn	ASGI 服务运行
-Docker	后端容器化
-🤖 AI / RAG / Agent
+AIChat
 
-项目使用 DeepSeek Streaming API 作为 AI 对话服务。
+A full-stack AI chat application built with Android, FastAPI, LangGraph Agent, RAG and Docker.
 
-同时加入：
+AIChat 是一个完整的全栈 AI 应用项目。
 
-RAG（Retrieval-Augmented Generation）
+项目包含：
+
+Android 客户端
+FastAPI 后端服务
+LLM Streaming Chat
 LangGraph Agent Workflow
-Tool Calling
+RAG 知识库
+JWT 用户认证
+PostgreSQL 数据持久化
+Redis 缓存
+Docker Compose 部署
 
-形成：
+项目目标：
 
+通过实际工程实践，学习并实现：
+
+Android AI 应用开发
+Backend API 设计
+Agent Workflow
+RAG Retrieval
+SSE Streaming
+Authentication
+Database Engineering
+Container Deployment
+✨ Features
 AI Chat
 
-   |
+支持类似 ChatGPT 的实时对话体验。
 
-   ├── Direct LLM Chat
+功能：
 
-   |
+Streaming Response
+SSE 数据流
+实时 UI 更新
+Chat History 保存
 
-   ├── RAG Knowledge Retrieval
-
-   |
-
-   └── Agent Tool Calling
-
-
-使用的技术：
-
-技术	用途
-DeepSeek Streaming API	AI 流式对话
-LangGraph	Agent 工作流编排
-Agent State	管理 Agent 当前状态
-Tool Calling	Agent 调用外部工具
-RAG Pipeline	知识库增强生成
-Embedding	文档向量化
-Vector Retrieval	相似度检索
-PDF Parser	文档解析
-📚 RAG 知识库
-
-项目已经完成：
-
-PDF
-
- ↓
-
-Text Extract
-
- ↓
-
-Chunk Split
-
- ↓
-
-Embedding
-
- ↓
-
-Vector Index
-
- ↓
-
-Retriever
-
- ↓
-
-LLM
-
- ↓
-
-Answer
-
-用户可以上传 PDF 文件：
+流程：
 
 Android
 
- ↓
-
-POST /documents/upload
-
- ↓
+↓
 
 FastAPI
 
- ↓
+↓
 
-PDF Loader
+Agent Workflow
 
- ↓
+↓
 
-Chunk Splitter
+LLM
 
- ↓
-
-Embedding
-
- ↓
-
-Vector Store
-
- ↓
-
-Knowledge Base
-RAG Pipeline
-
-完整流程：
-
-Android
-
-    ↓
-
-选择 PDF
-
-    ↓
-
-POST /documents/upload
-
-    ↓
-
-Backend
-
-    ↓
-
-PDF Loader
-
-    ↓
-
-Text Chunking
-
-    ↓
-
-Embedding Model
-
-    ↓
-
-vectors.npy
-
-    ↓
-
-rag_index.json
-
-    ↓
-
-Retriever Reload
-
-    ↓
-
-用户提问
-
-    ↓
-
-Knowledge Base Tool
-
-    ↓
-
-Vector Retrieval
-
-    ↓
-
-Context
-
-    ↓
-
-Prompt
-
-    ↓
-
-DeepSeek
-
-    ↓
+↓
 
 SSE Streaming
 
-    ↓
+↓
 
-Android UI
-RAG 模块结构
+Android Compose UI
+🤖 AI Agent & RAG
+
+项目集成 LangGraph Agent。
+
+Agent 负责根据用户问题判断：
+
+是否直接回答
+是否调用知识库
+是否调用工具
+
+架构：
+
+User Message
+
+        ↓
+
+   LangGraph Agent
+
+        ↓
+
+   Agent State
+
+        ↓
+
+    LLM Node
+
+        ↓
+
+ Tool Decision
+
+        ↓
+
+ ┌───────────────┐
+ │               │
+ ↓               ↓
+
+Knowledge      Calculator
+ Tool             Tool
+
+ ↓               ↓
+
+RAG Search    Calculation
+
+        ↓
+
+   Final Answer
+📚 RAG Knowledge Base
+
+项目支持 PDF 文档知识库。
+
+完整流程：
+
+PDF Upload
+
+↓
+
+PDF Parser
+
+↓
+
+Text Extraction
+
+↓
+
+Chunk Split
+
+↓
+
+Embedding
+
+↓
+
+Vector Index
+
+↓
+
+Retriever
+
+↓
+
+Knowledge Context
+
+↓
+
+LLM Answer
+
+用户可以：
+
+上传 PDF
+构建知识库
+基于文档进行问答
+
+RAG 模块：
+
 rag/
 
 ├── loader.py
@@ -222,1225 +171,110 @@ rag/
 
 ├── rag_service.py
 
-├── build_index.py
-
-├── test_loader.py
-
-└── test_retriever.py
-
-
-模块说明：
-
-loader.py
-
-负责：
-
-PDF 文件读取
-文本提取
-splitter.py
-
-负责：
-
-文档切分
-Chunk 生成
-embedding.py
-
-负责：
-
-文本向量化
-vector_store.py
-
-负责：
-
-保存向量
-加载索引
-retriever.py
-
-负责：
-
-根据用户问题搜索相关 Chunk
-rag_service.py
-
-负责：
-
-组织 RAG 查询流程
-🤖 LangGraph Agent
-
-项目后端新增 Agent 能力。
-
-Agent 使用 LangGraph 构建。
-
-目前实现的是：
-
-基于 LangGraph State Graph 的单 Agent 工作流，通过 Tool Calling 调用知识库查询和计算工具。
-
-并不是复杂的 Multi-Agent 系统，而是一个轻量级 Agent Workflow。
-
-Agent 架构
-
-整体结构：
-
-                User Message
-
-                     |
-
-                     ↓
-
-              Agent.run()
-
-                     |
-
-                     ↓
-
-             LangGraph Graph
-
-                     |
-
-                     ↓
-
-              Agent State
-
-                     |
-
-                     ↓
-
-              LLM Node
-
-                     |
-
-          判断是否需要调用 Tool
-
-                     |
-
-        ┌────────────┴────────────┐
-
-        ↓                         ↓
-
-Knowledge Base Tool        Calculator Tool
-
-
-        ↓                         ↓
-
- RAG Retrieval             Math Calculation
-
-
-        └────────────┬────────────┘
-
-                     ↓
-
-              Final Response
-
-Agent 核心代码流程
-
-Agent 初始化：
-
-class Agent:
-
-
-    def __init__(
-        self,
-        llm_client,
-        model
-    ):
-
-
-        self.llm_client = llm_client
-
-        self.model = model
-
-
-        self.tools = [
-
-            KNOWLEDGE_BASE_TOOL,
-
-            CALCULATOR_TOOL
-
-        ]
-
-
-        self.graph = create_graph(
-
-            llm_client=self.llm_client,
-
-            model=self.model,
-
-            tools=self.tools
-
-        )
-
-初始化过程中：
-
-创建 Agent Tools
-创建 LangGraph Workflow
-注入 LLM Client
-构建 Agent 执行图
-Agent 执行流程
-
-用户消息进入：
-
-async def run(
-    self,
-    messages:list,
-):
-
-
-    state = {
-
-        "messages":messages
-
-    }
-
-
-    result = await self.graph.ainvoke(
-
-        state
-
-    )
-
-
-    return result["messages"][-1].content
-
-执行流程：
-
-messages
-
-   ↓
-
-AgentState
-
-   ↓
-
-LangGraph Graph
-
-   ↓
-
-Node Execution
-
-   ↓
-
-Tool Calling
-
-   ↓
-
-Final Message
-
-Agent Tools
-
-当前 Agent 包含两个工具。
-
-📚 Knowledge Base Tool
-
-用于调用 RAG 知识库。
-
-流程：
-
-User Question
-
-       ↓
-
-Agent
-
-       ↓
-
-Knowledge Base Tool
-
-       ↓
-
-Retriever
-
-       ↓
-
-Vector Search
-
-       ↓
-
-Relevant Documents
-
-       ↓
-
-LLM
-
-       ↓
-
-Answer
-
-应用场景：
-
-PDF 文档问答
-项目文档查询
-知识库搜索
-🧮 Calculator Tool
-
-用于处理数学计算。
-
-流程：
-
-User
-
- ↓
-
-Agent
-
- ↓
-
-Calculator Tool
-
- ↓
-
-Calculation
-
- ↓
-
-Result
-
- ↓
-
-LLM Response
-
-例如：
-
-用户：
-
-计算 123 * 456
-
-
-Agent:
-
-调用 Calculator Tool
-
-
-返回：
-
-56088
-Agent 与 RAG 集成
-
-Agent 和已有 RAG 系统结合：
-
-                 User
-
-                  |
-
-                  ↓
-
-              LangGraph
-
-                  |
-
-          判断是否需要知识查询
-
-                  |
-
-          ┌───────────────┐
-
-          ↓               ↓
-
-       普通回答       Knowledge Tool
-
-
-                          |
-
-                          ↓
-
-                     Retriever
-
-
-                          |
-
-                          ↓
-
-                    Vector Search
-
-
-                          |
-
-                          ↓
-
-                    Context
-
-
-                          |
-
-                          ↓
-
-                       LLM
-
-
-                          |
-
-                          ↓
-
-                      Answer
-
-Agent 与 SSE Streaming
-
-当前聊天架构：
-
+└── build_index.py
+🛠 Tech Stack
 Android
-
- ↓
-
-POST /chat
-
- ↓
-
-FastAPI
-
- ↓
-
-Agent
-
- ↓
-
-LangGraph
-
- ↓
-
-DeepSeek
-
- ↓
-
-StreamingResponse
-
- ↓
-
-Android OkHttp
-
- ↓
-
-Compose UI
-
-Agent 生成结果后，可以继续通过现有 SSE 机制返回 Android。
-
-Agent 当前能力总结
-
-目前已经实现：
-
-✅ LangGraph Agent Workflow
-
-✅ Agent State 管理
-
-✅ LLM Node 调用
-
-✅ Tool Calling
-
-✅ Knowledge Base Tool
-
-✅ Calculator Tool
-
-✅ Agent + RAG 集成
-
-✅ Agent 与 FastAPI 集成
-
-✅ Agent 与聊天系统结合
-
-（Part 2/4 完）
-
-下一部分继续：
-
-Part 3/4：JWT认证、SSE Streaming、数据库、Docker、API说明、Android架构部分
-
-继续
-README.md
-Part 3/4
-🔐 JWT 身份认证
-
-项目使用 JWT 实现用户身份认证。
-
-登录成功后，Backend 返回：
-
-Access Token
-Refresh Token
-
-Android 客户端通过 DataStore 保存 Token。
-
-Access Token
-
-Access Token 用于访问需要登录权限的 API。
-
-例如：
-
-POST /chat
-
-GET /history
-
-DELETE /history
-
-POST /documents/upload
-
-请求时通过 HTTP Header 携带：
-
-Authorization: Bearer <access_token>
-
-Access Token 使用较短有效期。
-
-这样可以降低 Token 泄露后的风险。
-
-Refresh Token
-
-Refresh Token 用于获取新的 Access Token。
-
-Refresh Token 不直接用于访问普通业务 API。
-
-流程：
-
-Android
-
- ↓
-
-请求业务 API
-
- ↓
-
-Access Token 过期
-
- ↓
-
-401 Unauthorized
-
- ↓
-
-TokenAuthenticator
-
- ↓
-
-POST /refresh
-
- ↓
-
-获取新的 Access Token
-
- ↓
-
-保存 Token
-
- ↓
-
-重新执行原请求
-🔄 Access Token 自动刷新
-
-Android 使用：
-
-AuthInterceptor
-TokenAuthenticator
-
-实现自动 Token 管理。
-
-整体流程：
-
-                Android App
+Technology	Purpose
+Kotlin	Android 开发语言
+Jetpack Compose	UI 开发
+Material 3	UI Component
+MVVM	Application Architecture
+ViewModel	State Management
+Kotlin Coroutines	Async Task
+StateFlow	Reactive UI Update
+Retrofit	HTTP Communication
+OkHttp	Network Layer / SSE
+Room	Local Database
+DataStore	Token Storage
+Navigation Compose	Page Navigation
+Hilt	Dependency Injection
+Backend
+Technology	Purpose
+Python	Backend Language
+FastAPI	Web API Framework
+SQLAlchemy	ORM
+PostgreSQL	Production Database
+SQLite	Development Database
+Pydantic	Data Validation
+JWT	Authentication
+Bcrypt	Password Hash
+OAuth2 Bearer Token	API Security
+Uvicorn	ASGI Server
+AI Stack
+Technology	Purpose
+LLM API	AI Conversation
+LangGraph	Agent Workflow
+Agent State	Workflow State Management
+Tool Calling	External Capability
+Embedding Model	Vector Representation
+Vector Search	Knowledge Retrieval
+RAG Pipeline	Retrieval Augmented Generation
+DevOps
+Technology	Purpose
+Docker	Containerization
+Docker Compose	Multi Container Management
+Linux	Deployment Environment
+Redis	Cache / Temporary Data
+PostgreSQL	Database Service
+🏗 System Architecture
+
+整体架构：
+
+                 Android App
 
                      |
 
                      ↓
 
-              HTTP Request
+              FastAPI Backend
+
+                     |
+
+          ┌──────────┴──────────┐
+
+          ↓                     ↓
+
+ Authentication             AI Service
+
+    JWT                     Agent
+
+                                  |
+
+                                  ↓
+
+                            LangGraph
+
+                                  |
+
+                ┌─────────────────┴───────────────┐
+
+                ↓                                 ↓
+
+          RAG Knowledge Tool              Calculator Tool
+
+                |
+
+                ↓
+
+           Vector Retrieval
+
+                |
+
+                ↓
+
+                LLM
+
 
                      |
 
                      ↓
 
-            AuthInterceptor
+             PostgreSQL / Redis
+📱 Android Architecture
 
-                     |
+Android 使用 MVVM 架构。
 
-                     ↓
-
-      Authorization: Bearer Token
-
-                     |
-
-                     ↓
-
-             FastAPI Backend
-
-                     |
-
-                     ↓
-
-              Token Expired
-
-                     |
-
-                     ↓
-
-                  401
-
-                     |
-
-                     ↓
-
-          TokenAuthenticator
-
-                     |
-
-                     ↓
-
-              POST /refresh
-
-                     |
-
-                     ↓
-
-          New Access Token
-
-                     |
-
-                     ↓
-
-              DataStore保存
-
-                     |
-
-                     ↓
-
-             Retry Original Request
-
-AuthInterceptor
-
-负责：
-
-自动读取 Access Token
-添加 Authorization Header
-
-流程：
-
-HTTP Request
-
-      ↓
-
-AuthInterceptor
-
-      ↓
-
-读取 DataStore
-
-      ↓
-
-添加 Token
-
-      ↓
-
-发送请求
-TokenAuthenticator
-
-负责：
-
-捕获 401
-判断 Token 是否失效
-调用 Refresh API
-保存新 Token
-重试请求
-
-流程：
-
-收到401
-
- ↓
-
-检查是否已经刷新
-
- ↓
-
-读取 Refresh Token
-
- ↓
-
-POST /refresh
-
- ↓
-
-获取新 Access Token
-
- ↓
-
-保存
-
- ↓
-
-重新发送请求
-
-
-如果刷新失败：
-
- ↓
-
-清除本地 Token
-
- ↓
-
-用户重新登录
-🔑 登录流程
-
-用户输入用户名和密码：
-
-LoginScreen
-
-      ↓
-
-LoginViewModel
-
-      ↓
-
-Repository
-
-      ↓
-
-Retrofit
-
-      ↓
-
-POST /login
-
-      ↓
-
-FastAPI
-
-      ↓
-
-查询用户
-
-      ↓
-
-验证密码
-
-      ↓
-
-生成 JWT
-
-      ↓
-
-返回 Token
-
-      ↓
-
-DataStore 保存
-
-
-登录返回：
-
-{
-  "access_token": "...",
-  "refresh_token": "...",
-  "token_type": "bearer"
-}
-📝 注册流程
-RegisterScreen
-
-      ↓
-
-RegisterViewModel
-
-      ↓
-
-Repository
-
-      ↓
-
-Retrofit
-
-      ↓
-
-POST /register
-
-      ↓
-
-FastAPI
-
-      ↓
-
-Password Hash
-
-      ↓
-
-SQLAlchemy
-
-      ↓
-
-Database
-
-      ↓
-
-返回结果
-💬 AI 聊天流程（SSE Streaming）
-
-项目已经移除传统一次性响应模式。
-
-当前全部使用 SSE Streaming。
-
-完整流程：
-
-用户输入问题
-
-
-        ↓
-
-
-ChatScreen
-
-
-        ↓
-
-
-ChatViewModel
-
-
-        ↓
-
-
-ChatRepository
-
-
-        ↓
-
-
-OkHttp SSE Request
-
-
-        ↓
-
-
-AuthInterceptor
-
-
-        ↓
-
-
-POST /chat
-
-
-        ↓
-
-
-FastAPI
-
-
-        ↓
-
-
-JWT验证
-
-
-        ↓
-
-
-获取用户
-
-
-        ↓
-
-
-保存用户消息
-
-
-        ↓
-
-
-Agent
-
-
-        ↓
-
-
-LangGraph Workflow
-
-
-        ↓
-
-
-Tool Calling / DeepSeek
-
-
-        ↓
-
-
-StreamingResponse
-
-
-        ↓
-
-
-Android读取chunk
-
-
-        ↓
-
-
-Repository callback
-
-
-        ↓
-
-
-StateFlow更新
-
-
-        ↓
-
-
-Compose实时渲染
-
-
-        ↓
-
-
-保存完整 Assistant Message
-
-🧵 Android SSE Streaming 实现
-
-Android 使用：
-
-OkHttp
-Kotlin Coroutine
-Repository Callback
-
-数据流：
-
-FastAPI
-
- ↓
-
-SSE Chunk
-
- ↓
-
-OkHttp Response Body
-
- ↓
-
-Repository
-
- ↓
-
-onChunk()
-
- ↓
-
-ViewModel
-
- ↓
-
-StateFlow
-
- ↓
-
-Compose
-
-例如：
-
-AI:
-
-你
-
-你好
-
-你好，
-
-你好，很高兴
-
-你好，很高兴帮助你
-
-实现类似 ChatGPT 的实时输出效果。
-
-💾 数据库设计
-
-项目使用关系型数据库保存用户和聊天数据。
-
-主要模型：
-
-User
-
-users
-
-字段：
-
-id
-
-username
-
-password_hash
-
-created_time
-Message
-
-messages
-
-字段：
-
-id
-
-user_id
-
-role
-
-content
-
-created_time
-
-关系：
-
-User
-
-
- |
-
- |
-
- └──── Message
-
-
-其中：
-
-messages.user_id
-
-用于关联用户聊天记录。
-
-Conversation 会话管理
-
-项目支持多会话管理。
-
-包括：
-
-创建会话
-获取会话列表
-获取会话消息
-删除会话
-
-接口：
-
-GET /conversations
-
-
-GET /conversations/{conversation_id}/messages
-
-
-DELETE /conversations/{conversation_id}
-🪵 logger.py 日志系统
-
-Backend 增加统一日志模块。
-
-记录：
-
-API 请求
-用户认证
-Agent 调用
-DeepSeek 请求
-SSE Streaming
-数据库异常
-网络异常
-
-示例：
-
-INFO  Chat request received
-
-INFO  Start Agent workflow
-
-INFO  Tool calling knowledge_base
-
-INFO  DeepSeek streaming started
-
-INFO  Save assistant message
-
-ERROR Request failed
-🐳 Docker
-
-Backend 支持 Docker 容器运行。
-
-作用：
-
-封装 Python 环境
-固定依赖版本
-简化部署
-
-流程：
-
-Dockerfile
-
- ↓
-
-docker build
-
- ↓
-
-Docker Image
-
- ↓
-
-docker run
-
- ↓
-
-FastAPI Container
-
-构建：
-
-cd AIchatBackend
-
-docker build -t aichat-backend .
-
-运行：
-
-docker run -p 8000:8000 aichat-backend
-
-启动后：
-
-http://localhost:8000
-
-Swagger:
-
-http://localhost:8000/docs
-🗄️ Docker 与数据库
-
-数据库文件不直接打包进入 Docker。
-
-Docker 镜像包含：
-
-Python
-FastAPI
-项目代码
-requirements
-
-不包含：
-
-.env
-*.db
-*.sqlite
-本地缓存
-
-通过：
-
-.gitignore
-
-.dockerignore
-
-进行过滤。
-
-📡 API
-用户认证
-注册
-POST /register
-
-创建用户。
-
-登录
-POST /login
-
-返回：
-
-Access Token
-Refresh Token
-刷新 Token
-POST /refresh
-
-使用 Refresh Token 获取新的 Access Token。
-
-聊天
-AI Chat
-POST /chat
-
-功能：
-
-AI 对话
-Agent 调用
-RAG 查询
-SSE Streaming
-
-请求：
-
-Authorization: Bearer <access_token>
-历史记录
-
-获取：
-
-GET /history
-
-清空：
-
-DELETE /history
-
-需要：
-
-Access Token
-文档 / RAG
-
-上传 PDF：
-
-POST /documents/upload
-
-请求：
-
-multipart/form-data
-
-file=<PDF>
-
-功能：
-
-PDF解析
-Chunk生成
-Embedding
-Vector Index
-Knowledge Base
-API认证关系
-/register
-
-    ↓
-
-无需登录
-
-
-
-/login
-
-    ↓
-
-返回 Token
-
-
-
-/refresh
-
-    ↓
-
-Refresh Token
-
-
-
-/chat
-
-    ↓
-
-Access Token
-
-
-
-/history
-
-    ↓
-
-Access Token
-
-
-
-/documents/upload
-
-    ↓
-
-Access Token
-
-
-（Part 3/4 完）
-
-下一部分继续：
-
-Part 4/4：Android 架构、项目运行方式、测试、当前状态、未来计划、Author（最终完整结束版）
-
-继续
-README.md
-Part 4/4
-🧩 Android 架构
-
-Android 客户端采用 MVVM 架构。
-
-整体结构：
+结构：
 
 UI Layer
 
@@ -1456,277 +290,417 @@ Repository
 
 Network / Database
 
-
-例如聊天功能：
+例如 Chat：
 
 ChatScreen
 
-      ↓
+↓
 
 ChatViewModel
 
-      ↓
+↓
 
 ChatRepository
 
-      ↓
-
-ChatApi
-
-      ↓
+↓
 
 OkHttp SSE
 
-      ↓
+↓
 
-FastAPI Backend
+FastAPI
 
-      ↓
+↓
 
-LangGraph Agent
+Agent
 
-      ↓
+↓
 
-DeepSeek
-Repository Pattern
+LLM
+🔐 Authentication
 
-项目使用 Repository 作为数据访问层。
+项目使用 JWT 实现用户认证。
 
-主要负责：
+认证流程：
 
-网络请求
-SSE Streaming
-Room 数据操作
-Token 管理
-数据转换
+Login
 
-聊天流程：
+↓
 
-ViewModel
+FastAPI
 
-    ↓
+↓
 
-Repository
+Generate JWT
 
-    ↓
+↓
 
-SSE Stream
+Access Token
 
-    ↓
++
 
-chunk callback
+Refresh Token
 
-    ↓
+↓
 
-StateFlow
+Android DataStore
 
-    ↓
+支持：
 
-Compose UI
-🧵 Kotlin Coroutines
+Access Token
+Refresh Token
+Token 自动刷新
+401 自动重试
 
-项目大量使用 Kotlin Coroutines。
+请求：
 
-主要场景：
+Authorization:
 
-网络请求
-SSE 流读取
-数据库操作
-Token Refresh
-DataStore 读取
-UI 状态更新
-
-流程：
-
-Main Thread
+Bearer <access_token>
 
 
-      ↓
 
+💾 Database Design
 
-ViewModel Coroutine
+项目使用关系型数据库保存用户、聊天记录以及业务数据。
 
+Development
 
-      ↓
+开发阶段：
 
+SQLite
 
-Repository
+SQLite 适合：
 
+本地开发
+单用户测试
+快速验证功能
+Production
 
-      ↓
+生产环境：
 
+PostgreSQL
 
-Network / Database
+原因：
 
+相比 SQLite，PostgreSQL 更适合服务端应用：
 
-      ↓
+多用户访问
+并发连接
+完整事务支持
+更强的数据管理能力
 
+数据库架构：
 
-Result
-
-
-      ↓
-
-
-StateFlow
-
-
-      ↓
-
-
-Compose UI
-
-🧭 Navigation
-
-Android 使用 Navigation Compose。
-
-页面包括：
-
-Start 页面
-Login 页面
-Register 页面
-Chat 页面
-History 页面
-Setting 页面
-
-导航结构：
-
-Start
+User
 
  |
 
- ├── Login
+ |
+
+ └──── Message
+
+
+Conversation
 
  |
 
- ├── Register
-
  |
 
- ↓
+ └──── Message
 
-Main
+主要数据：
 
- |
+User
 
- ├── Chat
+保存：
 
- |
+username
+password_hash
+created_time
+Conversation
 
- ├── History
+保存：
 
- |
+conversation_id
+user_id
+title
+created_time
+Message
 
- └── Setting
+保存：
 
-🧪 JWT 自动刷新测试
+conversation_id
+role
+content
+created_time
+⚡ Redis
 
-项目已经实际测试 Access Token 过期后的自动刷新流程。
+项目引入 Redis 作为缓存和临时状态存储。
 
-测试：
+Redis 主要用于：
 
-Access Token 过期
+Cache
+Token 相关数据
+临时状态
 
+使用的数据结构：
+
+类型	使用场景
+String	简单缓存
+Hash	用户相关数据
+List	队列场景
+Set	集合数据
+TTL	自动过期数据
+
+Redis 优势：
+
+内存存储
+高性能读写
+支持过期策略
+
+项目不会将所有数据存入 Redis。
+
+原则：
+
+PostgreSQL
+
+负责：
+
+长期业务数据
+
+
+Redis
+
+负责：
+
+高速访问数据
+临时状态
+缓存
+🐳 Docker
+
+项目使用 Docker 实现 Backend 容器化。
+
+Docker 核心组件：
+
+Image
+
+镜像：
+
+应用运行模板。
+
+包含：
+
+Python 环境
+项目代码
+Dependencies
+Container
+
+容器：
+
+镜像运行后的实例。
+
+Backend：
+
+Docker Image
+
+↓
+
+Container
+
+↓
+
+FastAPI Service
+Volume
+
+用于数据持久化。
+
+例如：
+
+数据库数据不能依赖 Container 生命周期。
+
+如果：
+
+docker rm container
+
+容器删除：
+
+数据可能丢失。
+
+因此：
+
+使用 Volume 保存：
+
+PostgreSQL 数据
+Redis 数据
+Network
+
+Docker Network 用于容器之间通信。
+
+例如：
+
+Backend Container
+
+        |
 
         ↓
 
+Docker Network
 
-POST /chat
+        |
 
+ ┌──────┴──────┐
+
+ ↓             ↓
+
+PostgreSQL    Redis
+
+容器内部不能使用：
+
+localhost
+
+应该使用：
+
+service name
+
+例如：
+
+DATABASE_URL=
+postgresql://user:password@postgres:5432/database
+🐳 Docker Compose
+
+项目使用 Docker Compose 管理多个服务。
+
+当前架构：
+
+             Docker Compose
+
+
+                  |
+
+        ┌─────────┼─────────┐
+
+        ↓         ↓         ↓
+
+
+    Backend   PostgreSQL   Redis
+
+
+        |
 
         ↓
 
+    FastAPI API
 
-401 Unauthorized
+Compose 负责：
 
+Service 管理
+Container 创建
+Network 配置
+Environment 注入
+Volume 持久化
 
-        ↓
+示例：
 
+services:
 
-TokenAuthenticator
+  backend:
 
+  postgres:
 
-        ↓
+  redis:
+🚀 Deployment Architecture
 
+完整部署链路：
 
-POST /refresh
-
-
-        ↓
-
-
-200 OK
-
-
-        ↓
-
-
-保存新的 Access Token
+Linux Server
 
 
-        ↓
+      ↓
 
 
-重新请求 /chat
+Docker
 
 
-        ↓
+      ↓
 
 
-200 OK
+Docker Compose
 
 
-测试日志：
+      ↓
 
-POST /chat       → 401 Unauthorized
 
-POST /refresh    → 200 OK
+FastAPI Container
 
-POST /chat       → 200 OK
 
-说明：
+      ↓
 
-Android 客户端已经能够：
 
-自动检测 Token 失效
-使用 Refresh Token 刷新
-保存新 Token
-自动重试原请求
-🚀 项目运行
-1. Clone 项目
-git clone https://github.com/lizzy184/AIChat.git
+PostgreSQL + Redis
 
-进入：
 
-cd AIChat
-2. 启动 Backend
+      ↓
 
-进入：
 
-cd AIchatBackend
+AI API Service
+🐧 Linux Deployment
 
-创建虚拟环境：
+项目按照服务器环境进行部署模拟。
 
-python -m venv .venv
+常用 Linux 操作：
 
-Windows:
+cd
 
-.venv\Scripts\activate
+ls
 
-安装依赖：
+pwd
 
-pip install -r requirements.txt
-配置环境变量
+grep
 
-创建：
+cat
+
+vim
+
+ps
+
+top
+
+curl
+
+ssh
+
+排查流程：
+
+查看服务
+ps
+查看端口
+ss
+
+例如：
+
+检查 FastAPI：
+
+curl localhost:8000/docs
+查看日志
+cat
+
+tail
+🔧 Environment Configuration
+
+敏感配置不直接写入代码。
+
+使用：
 
 .env
 
-内容：
+例如：
 
-DEEPSEEK_API_KEY=your_api_key
+SILICON_API_KEY=
 
-JWT_SECRET_KEY=your_secret
+DATABASE_URL=
+
+JWT_SECRET_KEY=
 
 JWT_ALGORITHM=HS256
 
@@ -1734,87 +708,144 @@ JWT_EXPIRE_MINUTES=15
 
 REFRESH_TOKEN_EXPIRE_DAYS=7
 
-注意：
+REDIS_HOST=redis
 
-不要提交：
+REDIS_PORT=6379
 
-API Key
-JWT Secret
-数据库文件
+不会提交：
 
-到 GitHub。
+.env
 
-启动 FastAPI
+通过：
+
+.gitignore
+
+.dockerignore
+
+避免敏感信息进入：
+
+Git Repository
+Docker Build Context
+📂 Project Structure
+
+整体结构：
+
+AIChat
+
+├── AIchatAndroid
+
+│   ├── app
+
+│   ├── ui
+
+│   ├── viewmodel
+
+│   ├── repository
+
+│   └── network
+
+
+├── AIchatBackend
+
+│   ├── app
+
+│   ├── api
+
+│   ├── models
+
+│   ├── database
+
+│   ├── agent
+
+│   ├── rag
+
+│   ├── config.py
+│   └── Dockerfile
+
+
+├── docker-compose.yml
+
+├── .env.example
+
+├── .gitignore
+
+├── .dockerignore
+
+└── README.md
+🚀 Quick Start
+1. Clone Project
+git clone https://github.com/lizzy184/AIChat.git
+
+cd AIChat
+Backend
+
+进入：
+
+cd AIchatBackend
+
+创建环境：
+
+python -m venv .venv
+
+安装依赖：
+
+pip install -r requirements.txt
+
+配置：
+
+创建：
+
+.env
+
+填写：
+
+SILICON_API_KEY=
+
+DATABASE_URL=
+
+JWT_SECRET_KEY=
+
+启动：
+
 uvicorn main:app --reload
 
-Swagger:
+访问：
 
 http://localhost:8000/docs
-Docker 启动
+Docker Compose Start
 
-构建：
+启动全部服务：
 
-docker build -t aichat-backend .
+docker compose up --build
 
-运行：
+启动后：
 
-docker run -p 8000:8000 aichat-backend
-3. 启动 Android
+Backend
 
-使用 Android Studio 打开：
+localhost:8000
 
-AIchatAndroid
 
-等待 Gradle Sync。
+PostgreSQL
 
-运行：
+5432
 
-Run → Run app
 
-支持：
+Redis
 
-Android Emulator
-Android 真机
-⚙️ Android Backend 通信
-Emulator
+6379
+📈 Current Project Status
 
-Android Emulator 访问电脑：
-
-不能使用：
-
-localhost
-
-使用：
-
-10.0.2.2
-
-例如：
-
-http://10.0.2.2:8000/
-真机
-
-要求：
-
-手机和电脑同一网络
-
-使用电脑局域网 IP：
-
-例如：
-
-http://192.168.x.x:8000/
-📈 当前项目状态
-
-目前项目已经完成：
+目前已经完成：
 
 Android
 
-✅ Kotlin Android 项目
+✅ Kotlin Android Application
 
 ✅ Jetpack Compose
 
 ✅ Material 3
 
-✅ MVVM 架构
+✅ MVVM Architecture
 
 ✅ ViewModel
 
@@ -1824,7 +855,7 @@ Android
 
 ✅ Retrofit
 
-✅ OkHttp Streaming
+✅ OkHttp SSE
 
 ✅ Room
 
@@ -1834,39 +865,17 @@ Android
 
 ✅ Hilt Dependency Injection
 
-✅ JWT Token 管理
+✅ JWT Token Management
 
-✅ Access Token
+AI System
 
-✅ Refresh Token
+✅ Streaming AI Chat
 
-✅ Token 自动刷新
+✅ LLM API Integration
 
-✅ 401 自动重试
-
-✅ 登录状态保存
-
-✅ 用户退出登录
-
-AI Chat
-
-✅ SSE Streaming AI Chat
-
-✅ DeepSeek Streaming API
-
-✅ Repository Chunk Callback
-
-✅ Compose 实时渲染
-
-✅ Streaming 完成保存消息
-
-Agent
-
-✅ LangGraph Workflow
+✅ LangGraph Agent Workflow
 
 ✅ Agent State
-
-✅ Agent Graph 创建
 
 ✅ Tool Calling
 
@@ -1874,17 +883,15 @@ Agent
 
 ✅ Calculator Tool
 
-✅ Agent 与 RAG 集成
-
-✅ Agent 与 FastAPI 集成
+✅ Agent + RAG Integration
 
 RAG
 
-✅ PDF 上传
+✅ PDF Upload
 
 ✅ PDF Parsing
 
-✅ Text Chunk
+✅ Text Chunking
 
 ✅ Embedding
 
@@ -1892,7 +899,7 @@ RAG
 
 ✅ Retriever
 
-✅ Knowledge Base Query
+✅ Knowledge Query
 
 Backend
 
@@ -1900,23 +907,19 @@ Backend
 
 ✅ REST API
 
-✅ StreamingResponse
-
-✅ Pydantic
-
-✅ SQLAlchemy
-
-✅ SQLite
-
-✅ 用户系统
+✅ SSE Streaming
 
 ✅ JWT Authentication
 
 ✅ Password Hash
 
-✅ Conversation 管理
+✅ SQLAlchemy
 
-✅ logger.py 日志系统
+✅ PostgreSQL Support
+
+✅ Conversation Management
+
+✅ Logging System
 
 DevOps
 
@@ -1924,185 +927,98 @@ DevOps
 
 ✅ Dockerfile
 
-✅ dockerignore
+✅ Docker Image
 
-✅ Git
+✅ Docker Container
 
-✅ GitHub
+✅ Docker Compose
 
-🔮 后续计划
-Agent 能力增强
+✅ PostgreSQL Container
 
-未来可以继续完善：
+✅ Redis Container
 
-Agent Streaming 输出优化
-Agent Tool 扩展
-更多外部工具接入
-Agent Prompt 优化
-Agent 状态管理优化
+✅ .gitignore
+
+✅ .dockerignore
+
+✅ Linux Deployment Practice
+
+🔮 Future Plan
+AI Agent
+Agent Streaming Optimization
+More Tools
 Multi-Agent Workflow
 Agent Evaluation
-AI 功能
-RAG 检索优化
-Chunk 策略优化
-Embedding 模型优化
-Markdown 渲染
-Code Highlight
-多模型支持
-AI 参数配置
+RAG
+Better Chunk Strategy
+Embedding Optimization
+Vector Database Integration
+Retrieval Evaluation
 Backend
-PostgreSQL
-Redis
-Docker Compose
+API Rate Limiting
+Monitoring
 HTTPS
-API 限流
-服务监控
-日志系统优化
-Testing
-Android UI Test
-Backend Unit Test
-API Test
-Agent Workflow Test
-RAG Retrieval Test
-JWT 自动刷新自动化测试
-📌 项目定位
+Better Logging
+Automated Testing
+DevOps
+CI/CD
+Production Reverse Proxy
+Cloud Deployment
+📌 Project Positioning
 
 AIChat 不只是一个简单 AI Demo。
 
-项目结合：
+项目完整结合：
 
 Android
 
 +
 
-Jetpack Compose
-
-+
-
-MVVM
-
-+
-
-Coroutines
-
-+
-
-StateFlow
-
-+
-
-Retrofit / OkHttp SSE
-
-+
-
-Room
-
-+
-
-DataStore
+FastAPI
 
 +
 
 JWT Authentication
 
-        |
++
 
-        ↓
+SSE Streaming
 
-FastAPI Backend
-
-        |
-
-        ↓
++
 
 LangGraph Agent
 
-        |
-
-        ↓
++
 
 RAG Knowledge Base
 
-        |
++
 
-        ↓
+PostgreSQL
 
-DeepSeek Streaming API
++
 
+Redis
 
-形成一个完整的：
++
 
-Android + FastAPI + Agent + RAG + Streaming AI 应用。
+Docker Compose
 
-通过该项目实践：
++
 
-Android 客户端开发
-后端 API 设计
-AI Agent Workflow
-RAG 知识库
-SSE Streaming
-JWT 安全认证
-Docker 部署
-Git 项目管理
-📁 子项目说明
-Android 客户端
+Linux Deployment
 
-详细说明：
+形成：
 
-AIchatAndroid/README.md
-
-包含：
-
-Compose UI
-MVVM
-ViewModel
-Repository
-StateFlow
-SSE Streaming
-Room
-DataStore
-JWT
-Backend
-
-详细说明：
-
-AIchatBackend/README.md
-
-包含：
-
-FastAPI
-JWT
-SQLAlchemy
-SSE
-DeepSeek
-LangGraph Agent
-RAG
-Docker
-📝 项目说明
-
-本项目主要用于：
-
-个人学习
-Android 开发实践
-FastAPI 后端实践
-AI Agent 开发实践
-LangGraph 工作流学习
-RAG 应用开发
-SSE Streaming 实践
-JWT 认证学习
-Docker 部署学习
-GitHub 项目管理
-
-项目会随着学习持续完善。
+一个完整的 Full-stack AI Application。
 
 👨‍💻 Author
 
 lizzy184
 
-GitHub：
+GitHub:
 
 https://github.com/lizzy184/AIChat
 
-⭐ Star
-
 如果这个项目对你有帮助，欢迎 Star ⭐
+

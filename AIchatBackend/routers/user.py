@@ -1,18 +1,43 @@
 from fastapi import APIRouter, Depends
-
 from sqlalchemy.orm import Session
-
-from database.database import get_db
-from utils.security import create_access_token
-from database.models import User
 from sqlalchemy.exc import IntegrityError
-from model.schema import RegisterRequest,LoginRequest,TokenResponse,RefreshRequest,RefreshResponse
 from fastapi import HTTPException
-from utils.security import hash_password
-from utils.security import verify_password
-from utils.security import create_refresh_token
-from utils.security import decode_refresh_token
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from services.redis_service import redis_service
+from database.database import get_db
+from database.models import User
+from model.schema import (
+    RegisterRequest,
+    LoginRequest,
+    TokenResponse,
+    RefreshRequest,
+    RefreshResponse,
+    LogoutRequest
+)
+from utils.security import (
+    create_access_token,
+    hash_password,
+    verify_password,
+    create_refresh_token,
+    decode_refresh_token,
+    decode_access_token
+)
+from datetime import datetime, timezone
+
 router = APIRouter()
+security = HTTPBearer()
+
+def get_remaining_time(payload):
+    exp=payload.get("exp")
+    if exp is None:
+        return 0
+    now=datetime.now(timezone.utc)
+    expire_time=datetime.fromtimestamp(exp,timezone.utc)
+    remaining = (expire_time-now).total_seconds()
+    return max(0,int(remaining))
+
+
+
 
 
 
@@ -42,61 +67,66 @@ def register(
     return {
         "user_id": new_user.id
     }
-@router.post("/login",response_model=TokenResponse)
+
+
+@router.post("/login", response_model=TokenResponse)
 def login(
-data:LoginRequest,
-db: Session = Depends(get_db)
+    data: LoginRequest,
+    db: Session = Depends(get_db)
 ):
-
-
-    user = db.query(User).filter(User.username==data.username).first()
-
+    user = db.query(User).filter(
+        User.username == data.username
+    ).first()
 
     if user is None:
-
-
         raise HTTPException(
-
             status_code=401,
-
             detail="用户名或密码错误"
-
         )
+
     password_correct = verify_password(
-       data.password,
+        data.password,
         user.password_hash
     )
-    if not password_correct:
 
+    if not password_correct:
         raise HTTPException(
             status_code=401,
             detail="用户名或密码错误"
         )
 
-
-
-
     access_token = create_access_token(
-    data={
-        "sub": str(user.id)
-    }
-)
+        data={
+            "sub": str(user.id)
+        }
+    )
 
     refresh_token = create_refresh_token({
-    "sub": str(user.id)
-})
-
+        "sub": str(user.id)
+    })
 
     return {
-    "access_token": access_token,
-    "refresh_token": refresh_token,
-    "token_type": "bearer"
-}
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer"
+    }
+
+
 @router.post("/refresh", response_model=RefreshResponse)
 def refresh(
     data: RefreshRequest,
     db: Session = Depends(get_db)
 ):
+    refresh_token = data.refresh_token
+
+    if redis_service.is_blacklisted(
+        f"blacklist:refresh:{refresh_token}"
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Refresh Token 已注销"
+        )
+
     payload = decode_refresh_token(
         data.refresh_token
     )
@@ -133,3 +163,34 @@ def refresh(
         "access_token": access_token,
         "token_type": "bearer"
     }
+@router.post("/logout")
+def logout(data:LogoutRequest,
+           credentials:HTTPAuthorizationCredentials = Depends(security)):
+    access_token=credentials.credentials
+    access_payload=decode_access_token(access_token)
+    if access_payload is not None:
+        remaining_time=get_remaining_time(access_payload)
+
+        if remaining_time>0:
+            redis_service.add_blacklist(
+                f"blacklist:access:{access_token}",
+                remaining_time
+            )
+    refresh_token=data.refresh_token
+    refresh_payload=decode_refresh_token(refresh_token)
+    if refresh_payload is not None:
+        remaining_time=get_remaining_time(refresh_payload)
+
+        if remaining_time>0:
+            redis_service.add_blacklist(
+                f"blacklist:refresh:{refresh_token}",
+                remaining_time
+            )
+        
+    return{
+
+
+        "message":"退出登录成功"
+    }
+
+
