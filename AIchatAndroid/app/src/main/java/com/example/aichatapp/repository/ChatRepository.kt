@@ -11,6 +11,7 @@ import com.example.aichatapp.network.ChatApi
 import com.example.aichatapp.network.NetworkResult
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -535,6 +536,69 @@ class ChatRepository @Inject constructor(
         }
     }
 
+    suspend fun logout(): NetworkResult<Unit> {
+
+        return try {
+
+            val refreshToken =
+                userPreferences.refreshToken.first()
+
+            if (refreshToken.isNullOrEmpty()) {
+
+                return NetworkResult.Error(
+                    "Refresh Token 不存在"
+                )
+            }
+
+            val response =
+                api.logout(
+                    LogoutRequest(
+                        refresh_token = refreshToken
+                    )
+                )
+
+            if (response.isSuccessful) {
+
+                NetworkResult.Success(Unit)
+
+            } else {
+
+                NetworkResult.Error(
+                    "退出登录失败:${response.code()}",
+                    response.code()
+                )
+            }
+
+        } catch (e: IOException) {
+
+            NetworkResult.Error(
+                "网络连接失败"
+            )
+
+        } catch (e: Exception) {
+
+            NetworkResult.Error(
+                e.message ?: "退出登录失败"
+            )
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * 直接上传 Multipart 文件
@@ -575,6 +639,16 @@ class ChatRepository @Inject constructor(
             )
         }
     }
+
+
+
+
+
+
+
+
+
+
 
 
     /**
@@ -699,4 +773,7 @@ class ChatRepository @Inject constructor(
             )
         }
     }
+
+
+
 }

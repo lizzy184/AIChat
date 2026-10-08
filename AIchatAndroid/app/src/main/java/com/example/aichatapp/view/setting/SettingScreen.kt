@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +29,8 @@ import com.example.aichatapp.data.UserPreferences
 
 import com.example.aichatapp.navigation.AppRoute
 import com.example.aichatapp.viewmodel.ChatViewModel
+import com.example.aichatapp.viewmodel.LogoutViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 
 
@@ -37,9 +40,9 @@ fun SettingScreen(
     navController: NavController
 
 ){
-    val scope = rememberCoroutineScope()
 
-val context= LocalContext.current
+
+
     /**
      *
      * 获取ChatViewModel
@@ -49,18 +52,13 @@ val context= LocalContext.current
      */
 
 
-val userPreferences=remember {
-        UserPreferences(context)
-
-
-    }
 
 
     val viewModel: ChatViewModel = hiltViewModel()
 
-
-
-
+   val logoutViewModel: LogoutViewModel= hiltViewModel()
+val errorMessage=logoutViewModel.errorMessage.collectAsState()
+val logoutSuccess=logoutViewModel.logoutSuccess.collectAsState()
 
 
     var darkMode by remember {
@@ -102,10 +100,13 @@ val userPreferences=remember {
     }
 
 
+    LaunchedEffect(logoutSuccess) {
+        navController.navigate(AppRoute.LOGIN)
+        {
+            popUpTo(0)
+        }
 
-
-
-
+}
     Column(
 
         modifier = Modifier
@@ -211,18 +212,7 @@ val userPreferences=remember {
 SettingItem(
     title = "退出登录",
     onClick = {
-        scope.launch {
-            userPreferences.clearTokens()
-            navController.navigate(
-                "login"
-            ){
-
-                popUpTo(0)
-
-            }
-        }
-
-
+        logoutViewModel.logout()
 
 }
 
@@ -391,7 +381,40 @@ SettingItem(
 
     }
 
+    if (errorMessage.value != null) {
 
+        AlertDialog(
+
+            onDismissRequest = {
+                logoutViewModel.clearError()
+            },
+
+            title = {
+                Text(
+                    text = "退出登录失败"
+                )
+            },
+
+            text = {
+                Text(
+                    text = errorMessage.value ?: ""
+                )
+            },
+
+            confirmButton = {
+
+                TextButton(
+                    onClick = {
+                        logoutViewModel.clearError()
+                    }
+                ) {
+                    Text(
+                        text = "确定"
+                    )
+                }
+            }
+        )
+    }
 
 
 

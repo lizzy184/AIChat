@@ -9,6 +9,7 @@ import com.example.aichatapp.model.DocumentUploadResponse
 import com.example.aichatapp.model.HistoryMessage
 import com.example.aichatapp.model.LoginRequest
 import com.example.aichatapp.model.LoginResponse
+import com.example.aichatapp.model.LogoutRequest
 import com.example.aichatapp.model.RefreshRequest
 import com.example.aichatapp.model.RefreshResponse
 import com.example.aichatapp.model.RegisterRequest
@@ -70,6 +71,12 @@ suspend fun login(
     suspend fun uploadDocument(
         @Part file: MultipartBody.Part
     ): DocumentUploadResponse
+
+    @POST("logout")
+    suspend fun logout(@Body request: LogoutRequest): Response<Unit>
+
+
+
 }
 interface RefreshApi {
 
