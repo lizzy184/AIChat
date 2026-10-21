@@ -47,29 +47,18 @@ class ConversationViewModel @Inject constructor(
 
 
 
-
-
     /*
     ==========================
-        当前选中的会话
+        当前选择会话
     ==========================
      */
 
 
-    private val _selectedConversationId =
-        MutableStateFlow<Int?>(null)
-
-
-    val selectedConversationId =
-        _selectedConversationId.asStateFlow()
-
-
-
 
 
     /*
     ==========================
-        加载状态
+        Loading
     ==========================
      */
 
@@ -83,11 +72,9 @@ class ConversationViewModel @Inject constructor(
 
 
 
-
-
     /*
     ==========================
-        错误信息
+        错误
     ==========================
      */
 
@@ -101,17 +88,6 @@ class ConversationViewModel @Inject constructor(
 
 
 
-
-
-
-
-    /*
-    ==========================
-        初始化
-    ==========================
-     */
-
-
     init {
 
         loadConversations()
@@ -121,13 +97,9 @@ class ConversationViewModel @Inject constructor(
 
 
 
-
-
-
-
     /*
     ==========================
-        获取所有会话
+        获取会话列表
 
         GET /conversations
 
@@ -141,9 +113,9 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
 
 
-            _isLoading.value = true
+            _isLoading.value=true
 
-            _errorMessage.value = null
+            _errorMessage.value=null
 
 
 
@@ -164,7 +136,6 @@ class ConversationViewModel @Inject constructor(
 
 
 
-
                 is NetworkResult.Error -> {
 
 
@@ -176,31 +147,20 @@ class ConversationViewModel @Inject constructor(
 
 
 
-
                 is NetworkResult.Loading -> {
 
-
                 }
-
-
 
             }
 
 
 
-            _isLoading.value = false
-
+            _isLoading.value=false
 
 
         }
 
-
     }
-
-
-
-
-
 
 
 
@@ -208,27 +168,8 @@ class ConversationViewModel @Inject constructor(
     /*
     ==========================
         选择会话
-
-        点击列表进入聊天
-
     ==========================
      */
-
-
-    fun selectConversation(
-        conversationId:Int
-    ){
-
-
-        _selectedConversationId.value =
-            conversationId
-
-
-    }
-
-
-
-
 
 
 
@@ -236,34 +177,7 @@ class ConversationViewModel @Inject constructor(
 
     /*
     ==========================
-        新聊天
-
-        conversationId=null
-
-    ==========================
-     */
-
-
-    fun newConversation(){
-
-
-        _selectedConversationId.value =
-            null
-
-
-    }
-
-
-
-
-
-
-
-
-
-    /*
-    ==========================
-        删除会话
+        删除整个会话
 
         DELETE /conversations/{id}
 
@@ -272,9 +186,7 @@ class ConversationViewModel @Inject constructor(
 
 
     fun deleteConversation(
-
         conversationId:Int
-
     ){
 
 
@@ -282,18 +194,14 @@ class ConversationViewModel @Inject constructor(
 
 
             when(
-
                 val result =
                     chatRepository.deleteConversation(
                         conversationId
                     )
-
             ){
 
 
-
                 is NetworkResult.Success -> {
-
 
 
                     _conversations.update { list ->
@@ -309,25 +217,72 @@ class ConversationViewModel @Inject constructor(
                     }
 
 
-
-                    if(
-                        _selectedConversationId.value
-                        ==
-                        conversationId
-                    ){
+                }
 
 
-                        _selectedConversationId.value =
-                            null
+                is NetworkResult.Error -> {
 
 
-                    }
-
+                    _errorMessage.value =
+                        result.message
 
 
                 }
 
 
+
+                is NetworkResult.Loading -> {
+
+
+                }
+
+
+            }
+
+        }
+
+
+    }
+
+
+
+
+    /*
+    ==========================
+        清除当前会话消息
+
+        DELETE /conversations/{id}/messages
+
+        保留会话
+
+    ==========================
+     */
+
+
+    fun clearConversationMessages(
+        conversationId:Int
+    ){
+
+
+        viewModelScope.launch {
+
+
+            when(
+                val result =
+                    chatRepository.clearConversationMessages(
+                        conversationId
+                    )
+            ){
+
+
+                is NetworkResult.Success -> {
+
+
+                    // 删除成功
+                    // 不处理messages
+
+
+                }
 
 
 
@@ -342,26 +297,19 @@ class ConversationViewModel @Inject constructor(
 
 
 
-
                 is NetworkResult.Loading -> {
 
 
                 }
 
 
-
             }
-
 
 
         }
 
 
-
     }
-
-
-
 
 
 
@@ -376,14 +324,9 @@ class ConversationViewModel @Inject constructor(
 
     fun clearError(){
 
-
-        _errorMessage.value =
-            null
-
+        _errorMessage.value=null
 
     }
-
-
 
 
 

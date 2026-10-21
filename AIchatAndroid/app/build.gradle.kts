@@ -174,7 +174,9 @@ dependencies {
         "com.squareup.okhttp3:logging-interceptor:4.12.0"
     )
 
-
+    implementation(
+        "com.mikepenz:multiplatform-markdown-renderer-m3:0.30.0"
+    )
 
     implementation(
         platform(

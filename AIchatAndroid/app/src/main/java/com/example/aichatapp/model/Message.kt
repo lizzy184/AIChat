@@ -1,16 +1,19 @@
 package com.example.aichatapp.model
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import java.util.UUID
+
 
 data class Message(
-    val text: String,
-    val isUser: Boolean,
-    val time: String
 
+    val id:String =
+        UUID.randomUUID().toString(),
 
+    val text:String,
 
+    val isUser:Boolean,
+
+    val time:String,
+
+    val isStreaming:Boolean = false
 
 )

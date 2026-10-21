@@ -179,3 +179,54 @@ def delete_conversation(
     return {
         "message": "会话删除成功"
     }
+
+
+@router.delete("/{conversation_id}/messages")
+def delete_conversation_messages(
+    conversation_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+
+    # =====================================================
+    # 1. 查询会话
+    # =====================================================
+
+    conversation = (
+        db.query(Conversation)
+        .filter(
+            Conversation.id == conversation_id,
+            Conversation.user_id == current_user.id
+        )
+        .first()
+    )
+
+    if conversation is None:
+        raise HTTPException(
+            status_code=404,
+            detail="会话不存在"
+        )
+
+    # =====================================================
+    # 2. 删除消息
+    # =====================================================
+
+    db.query(Message).filter(
+        Message.conversation_id == conversation_id
+    ).delete(
+        synchronize_session=False
+    )
+
+    # =====================================================
+    # 3. 提交
+    # =====================================================
+
+    db.commit()
+
+    return {
+        "message": "会话消息删除成功"
+    }
+
+
+
+

@@ -3,8 +3,13 @@ services:
   backend:
     build: .
     container_name: backend
+
     ports:
       - "8000:8000"
+
+    env_file:
+      - .env
+
     depends_on:
       - postgres
       - redis
@@ -13,12 +18,15 @@ services:
   postgres:
     image: postgres:16
     container_name: postgres
+
     environment:
       POSTGRES_USER: aichat
       POSTGRES_PASSWORD: password
       POSTGRES_DB: aichat_db
+
     ports:
       - "5432:5432"
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -26,6 +34,7 @@ services:
   redis:
     image: redis:7
     container_name: redis
+
     ports:
       - "6379:6379"
 

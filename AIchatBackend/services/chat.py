@@ -98,29 +98,28 @@ async def chat_ai_stream(
 )
 
 
+       
         # ==========================
-        # 调用 Agent
+        # 调用 Agent：真正的流式输出
         # ==========================
 
-        answer = await agent.run(
+        full_answer = []
 
+        async for text in agent.run_stream(
             messages=messages
+        ):
+            if not text:
+                continue
 
-        )
+            full_answer.append(text)
 
+            # 逐段交给上层路由
+            yield text
 
         logger.info(
-
-            f"Agent回答长度: {len(answer)}"
-
+            "Agent流式回答完成: 长度=%s",
+            len("".join(full_answer))
         )
-
-
-        # ==========================
-        # SSE 输出
-        # ==========================
-
-        yield answer
 
 
 

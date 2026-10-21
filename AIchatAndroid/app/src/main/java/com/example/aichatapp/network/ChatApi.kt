@@ -72,9 +72,15 @@ suspend fun login(
         @Part file: MultipartBody.Part
     ): DocumentUploadResponse
 
-    @POST("logout")
+    @POST("/logout")
     suspend fun logout(@Body request: LogoutRequest): Response<Unit>
 
+    @DELETE("conversations/{conversation_id}/messages")
+    suspend fun deleteConversationMessages(
+        @Path("conversation_id") conversationId: Int
+
+
+    ) :Response<Unit>
 
 
 }

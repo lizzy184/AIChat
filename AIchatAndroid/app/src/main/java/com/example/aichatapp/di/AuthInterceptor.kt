@@ -1,5 +1,6 @@
 package com.example.aichatapp.di
 
+import android.util.Log
 import com.example.aichatapp.data.UserPreferences
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -17,7 +18,10 @@ class AuthInterceptor(
         val token = runBlocking {
             userPreferences.accessToken.first()
         }
-
+        Log.d(
+            "AUTH",
+            "当前accessToken=$token"
+        )
         val request = chain.request()
             .newBuilder()
             .apply {

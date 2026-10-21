@@ -292,7 +292,8 @@ fun AppNavigation(
 
 
             SettingScreen(
-                navController
+                navController,
+                currentConversationId
             )
 
         }
