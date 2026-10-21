@@ -284,3 +284,22 @@ gradlew.bat assembleDebug
 **lizzy184**
 
 GitHub: https://github.com/lizzy184/AIChat
+
+
+
+
+
+## 📱 Application Screenshots
+
+### 1. Chat Interface
+
+![AI Chat Application](../screenshots/chat-screen.png)
+
+### 2. Settings Screen
+
+![Application Settings](../screenshots/settings-screen.png)
+
+### 3. History Screen
+
+![History Screen](../screenshots/history-screen.png)
+
