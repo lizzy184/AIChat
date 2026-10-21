@@ -1,77 +1,49 @@
 # =========================
-# Android / IntelliJ
+# Android / IntelliJ / Gradle
 # =========================
-
 **/.idea/
 **/.kotlin/
-
-# Android build
 **/build/
 **/captures/
-
-# Local configuration
 local.properties
-
-# Gradle
 .gradle/
-
-# Generated files
 *.apk
 *.aab
-
-# Kotlin
-*.class
-
-# OS
-.DS_Store
-Thumbs.db
 
 # =========================
 # Python
 # =========================
-
 **/__pycache__/
 *.py[cod]
-
-# Virtual environment
 .venv/
 venv/
 env/
-
-# Environment variables
 .env
 .env.*
-
-# SQLite database
 *.db
 *.sqlite
 *.sqlite3
-
-# Python cache
 .pytest_cache/
 .mypy_cache/
 
 # =========================
-# IDE
+# RAG 项目专属
 # =========================
-
-.vscode/
-# Python
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-.env
-
-# IDE
-.vscode/
-.idea/
-
-# Generated RAG data
 rag/
-
-# Local test files
 *.pdf
 
-# Archives
+# =========================
+# IDE
+# =========================
+.vscode/
+
+# =========================
+# 系统文件
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# 压缩包
+# =========================
 *.zip
