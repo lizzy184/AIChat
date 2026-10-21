@@ -1022,3 +1022,21 @@ https://github.com/lizzy184/AIChat
 
 如果这个项目对你有帮助，欢迎 Star ⭐
 
+
+
+
+## 📱 Application Screenshots
+
+### AI Chat Interface
+
+![AI Chat Interface](screenshots/chat-screen.png)
+
+### Settings Screen
+
+![Settings Screen](screenshots/settings-screen.png)
+
+### History Screen
+
+![History Screen](screenshots/history-screen.png)
+
+
